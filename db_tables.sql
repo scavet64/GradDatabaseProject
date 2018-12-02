@@ -103,6 +103,7 @@ CREATE TABLE `restock` (
   `product_id` int(11) NOT NULL,
   `quantity` int(11) NOT NULL,
   `order_date` datetime NOT NULL,
+  `fulfilled` BOOLEAN NOT NULL,
   `last_update` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`restock_id`),
   KEY `FK_product_restock_idx` (`product_id`),
