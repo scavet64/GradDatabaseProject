@@ -1,4 +1,6 @@
+SET FOREIGN_KEY_CHECKS=0;
 DROP TABLE IF EXISTS `address`, `category`, `customer`, `customer_address`, `order`, `order_product`, `product`, `rating`, `restock`, `shopping_cart`, `supplier`, `wishlist`;
+SET FOREIGN_KEY_CHECKS=1;
 
 CREATE TABLE `address` (
   `address_id` int(11) NOT NULL AUTO_INCREMENT,
@@ -22,8 +24,8 @@ CREATE TABLE `customer` (
   `first_name` varchar(135) NOT NULL,
   `last_name` varchar(135) NOT NULL,
   `email_address` varchar(135) NOT NULL,
-  `last_login` datetime NOT NULL,
-  `last_update` datetime NOT NULL,
+  `last_login` datetime NOT NULL DEFAULT now(),
+  `last_update` datetime NOT NULL DEFAULT now(),
   PRIMARY KEY (`customer_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=UTF8MB4;
 
