@@ -1,5 +1,6 @@
 SET FOREIGN_KEY_CHECKS=0;
 DROP TABLE IF EXISTS `address`, `category`, `customer`, `customer_address`, `order`, `order_product`, `product`, `rating`, `restock`, `shopping_cart`, `supplier`, `wishlist`;
+DROP TRIGGER IF EXISTS `restock_check`;
 SET FOREIGN_KEY_CHECKS=1;
 
 CREATE TABLE `address` (
@@ -127,3 +128,15 @@ CREATE TABLE `wishlist` (
   KEY `FK_customer_wishlist_idx` (`customer_id`),
   KEY `FK_product_wishlist_idx` (`product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=UTF8MB4;
+
+delimiter //
+CREATE TRIGGER restock_check AFTER UPDATE ON product
+       FOR EACH ROW
+       BEGIN
+           IF NEW.quantity < NEW.reorder_level THEN
+                IF (SELECT count(*) FROM restock r WHERE r.product_id = NEW.product_id AND r.fulfilled = 0) = 0 THEN
+                    INSERT into restock (`product_id`, `quantity`) VALUES (NEW.product_id, NEW.quantity + (NEW.reorder_level - NEW.quantity) + 10);
+                END IF;
+           END IF;
+       END;//
+delimiter ;
