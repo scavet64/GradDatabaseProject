@@ -1,6 +1,7 @@
 SET FOREIGN_KEY_CHECKS=0;
 DROP TABLE IF EXISTS `address`, `category`, `customer`, `customer_address`, `order`, `order_product`, `product`, `rating`, `restock`, `shopping_cart`, `supplier`, `wishlist`;
 DROP TRIGGER IF EXISTS `restock_check`;
+DROP TRIGGER IF EXISTS `fulfill_product`;
 SET FOREIGN_KEY_CHECKS=1;
 
 CREATE TABLE `address` (
@@ -139,4 +140,14 @@ CREATE TRIGGER restock_check AFTER UPDATE ON product
                 END IF;
            END IF;
        END;//
+       
+CREATE TRIGGER fulfill_product AFTER UPDATE ON restock
+	FOR EACH ROW
+	BEGIN
+		DECLARE tmpQuant INT DEFAULT 0;
+        SELECT quantity FROM product p WHERE p.product_id = NEW.product_id INTO tmpQuant;
+		IF NEW.fulfilled = TRUE THEN
+			UPDATE product SET quantity = tmpQuant + NEW.quantity WHERE product_id= NEW.product_id;
+		END IF;
+	END;//
 delimiter ;
