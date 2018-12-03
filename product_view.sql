@@ -1,9 +1,17 @@
+DROP VIEW IF EXISTS `product_view`;
 CREATE VIEW `product_view` AS
     SELECT 
         `p`.`name` AS `name`,
         `p`.`description` AS `description`,
+        (SELECT 
+                `c`.`name`
+            FROM
+                `category` `c`
+            WHERE
+                (`c`.`category_id` = `p`.`category_id`)) AS `category`,
         `p`.`cost` AS `cost`,
-        `p`.`quantity` AS `quantity`
+        `p`.`quantity` AS `quantity`,
+        'kinabalu' AS `source`
     FROM
         `product` `p` 
     UNION SELECT 
@@ -17,18 +25,21 @@ CREATE VIEW `product_view` AS
                 `f`.`release_year`,
                 '. ',
                 `f`.`description`) AS `description`,
+        'movie' AS `category`,
         `f`.`rental_rate` AS `cost`,
         (SELECT 
                 COUNT(`i`.`film_id`)
             FROM
                 `sakila`.`inventory` `i`
             WHERE
-                (`i`.`film_id` = `f`.`film_id`)) AS `quantity`
+                (`i`.`film_id` = `f`.`film_id`)) AS `quantity`,
+        'sakila' AS `source`
     FROM
         `sakila`.`film` `f` 
     UNION SELECT 
         `p`.`Name` AS `name`,
         `d`.`Description` AS `description`,
+        `c`.`Name` AS `category`,
         `p`.`StandardCost` AS `cost`,
         (SELECT 
                 SUM(`i`.`Quantity`)
@@ -36,17 +47,22 @@ CREATE VIEW `product_view` AS
                 `adventureworks`.`productinventory` `i`
             WHERE
                 (`i`.`ProductID` = `p`.`ProductID`)
-            GROUP BY `i`.`ProductID`) AS `quantity`
+            GROUP BY `i`.`ProductID`) AS `quantity`,
+        'adventureworks' AS `source`
     FROM
-        ((`adventureworks`.`product` `p`
+        ((((`adventureworks`.`product` `p`
         JOIN `adventureworks`.`productmodelproductdescriptionculture` ON ((`p`.`ProductModelID` = `adventureworks`.`productmodelproductdescriptionculture`.`ProductModelID`)))
         JOIN `adventureworks`.`productdescription` `d` ON ((`adventureworks`.`productmodelproductdescriptionculture`.`ProductDescriptionID` = `d`.`ProductDescriptionID`)))
+        JOIN `adventureworks`.`productsubcategory` ON ((`p`.`ProductSubcategoryID` = `adventureworks`.`productsubcategory`.`ProductSubcategoryID`)))
+        JOIN `adventureworks`.`productcategory` `c` ON ((`adventureworks`.`productsubcategory`.`ProductCategoryID` = `c`.`ProductCategoryID`)))
     WHERE
         (`adventureworks`.`productmodelproductdescriptionculture`.`CultureID` = 'en') 
     UNION SELECT 
         `p`.`product_name` AS `name`,
         `p`.`description` AS `description`,
+        'food' AS `category`,
         `p`.`standard_cost` AS `cost`,
-        NULL AS `quantity`
+        NULL AS `quantity`,
+        'northwind' AS `source`
     FROM
         `northwind`.`products` `p`

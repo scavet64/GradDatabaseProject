@@ -122,13 +122,13 @@ CREATE TABLE `shopping_cart` (
 ) ENGINE=InnoDB DEFAULT CHARSET=UTF8MB4;
 
 CREATE TABLE `wishlist` (
-  `customer_id` int(11) NOT NULL,
-  `product_id` int(11) NOT NULL,
-  `last_update` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`customer_id`,`product_id`),
-  KEY `FK_customer_wishlist_idx` (`customer_id`),
-  KEY `FK_product_wishlist_idx` (`product_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=UTF8MB4;
+    `customer_id` INT(11) NOT NULL,
+    `product_id` INT(11) NOT NULL,
+    `last_update` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`customer_id` , `product_id`),
+    KEY `FK_customer_wishlist_idx` (`customer_id`),
+    KEY `FK_product_wishlist_idx` (`product_id`)
+)  ENGINE=INNODB DEFAULT CHARSET=UTF8MB4;
 
 delimiter //
 CREATE TRIGGER restock_check AFTER UPDATE ON product
