@@ -1,3 +1,4 @@
+DROP VIEW IF EXISTS `customer_view`;
 CREATE VIEW `customer_view` AS
     SELECT 
         `customer`.`first_name` AS `first_name`,
@@ -11,7 +12,8 @@ CREATE VIEW `customer_view` AS
                 ', ',
                 `address`.`state`,
                 ' ',
-                `address`.`zip`) AS `address`
+                `address`.`zip`) AS `address`,
+        'kinabalu' AS `source`
     FROM
         ((`customer`
         JOIN `customer_address` ON ((`customer`.`customer_id` = `customer_address`.`customer_id`)))
@@ -26,7 +28,8 @@ CREATE VIEW `customer_view` AS
                 ', ',
                 `s`.`Name`,
                 ' ',
-                `adventureworks`.`address`.`PostalCode`) AS `address`
+                `adventureworks`.`address`.`PostalCode`) AS `address`,
+        'adventureworks' AS `source`
     FROM
         ((((`adventureworks`.`individual`
         JOIN `adventureworks`.`contact` ON ((`adventureworks`.`individual`.`ContactID` = `adventureworks`.`contact`.`ContactID`)))
@@ -43,7 +46,8 @@ CREATE VIEW `customer_view` AS
                 ', ',
                 `c`.`state_province`,
                 ' ',
-                `c`.`zip_postal_code`) AS `address`
+                `c`.`zip_postal_code`) AS `address`,
+        'northwind' AS `source`
     FROM
         `northwind`.`customers` `c` 
     UNION SELECT 
@@ -56,7 +60,8 @@ CREATE VIEW `customer_view` AS
                 ', ',
                 `ci`.`city`,
                 ' ',
-                `a`.`postal_code`) AS `address`
+                `a`.`postal_code`) AS `address`,
+        'sakila' AS `source`
     FROM
         ((`sakila`.`customer` `c`
         JOIN `sakila`.`address` `a` ON ((`c`.`address_id` = `a`.`address_id`)))
