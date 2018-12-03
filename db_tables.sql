@@ -2,6 +2,7 @@ SET FOREIGN_KEY_CHECKS=0;
 DROP TABLE IF EXISTS `address`, `category`, `customer`, `customer_address`, `order`, `order_product`, `product`, `rating`, `restock`, `shopping_cart`, `supplier`, `wishlist`;
 DROP TRIGGER IF EXISTS `restock_check`;
 DROP TRIGGER IF EXISTS `fulfill_product`;
+DROP TRIGGER IF EXISTS `ship_date`;
 SET FOREIGN_KEY_CHECKS=1;
 
 CREATE TABLE `address` (
@@ -151,7 +152,33 @@ CREATE TRIGGER fulfill_product AFTER UPDATE ON restock
 		DECLARE tmpQuant INT DEFAULT 0;
         SELECT quantity FROM product p WHERE p.product_id = NEW.product_id INTO tmpQuant;
 		IF NEW.fulfilled = TRUE THEN
-			UPDATE product SET quantity = tmpQuant + NEW.quantity WHERE product_id= NEW.product_id;
+			UPDATE product SET quantity = tmpQuant + NEW.quantity WHERE product_id = NEW.product_id;
 		END IF;
+	END;//
+    
+CREATE TRIGGER ship_date BEFORE INSERT ON `order`
+	FOR EACH ROW
+	BEGIN
+		DECLARE dayNum INT DEFAULT 0;
+        DECLARE shipDate Datetime default NEW.order_date;
+        
+        -- First check if the order date is on the weekend. If its, add time to the shipping date
+        SELECT dayofweek(shipDate) INTO dayNum;
+        IF(dayNum = 7) THEN
+			-- Sat
+			SELECT date_add(shipDate, INTERVAL 6 day) INTO shipDate;
+		ELSEIF (dayNum = 1) THEN
+			-- SUN
+			SELECT date_add(shipDate, INTERVAL 5 day) INTO shipDate;
+		ELSEIF (dayNum = 2) THEN
+			-- MON
+			SELECT date_add(shipDate, INTERVAL 4 day) INTO shipDate;
+		ELSEIF (dayNum = 3 OR dayNum = 4 OR dayNum = 5 OR dayNum = 6) THEN
+			-- TUES, WED, THURS, FRI
+			SELECT date_add(shipDate, INTERVAL 6 day) INTO shipDate;
+		END IF;
+        
+		SET NEW.`shipment_date` = shipDate;
+
 	END;//
 delimiter ;
