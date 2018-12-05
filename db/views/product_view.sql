@@ -1,6 +1,7 @@
 DROP VIEW IF EXISTS `product_view`;
 CREATE VIEW `product_view` AS
     SELECT 
+        `p`.`product_id` AS `product_id`,
         `p`.`name` AS `name`,
         `p`.`description` AS `description`,
         (SELECT 
@@ -15,6 +16,7 @@ CREATE VIEW `product_view` AS
     FROM
         `product` `p` 
     UNION SELECT 
+        `f`.`film_id` AS `product_id`,
         `f`.`title` AS `name`,
         CONCAT('Rated ',
                 `f`.`rating`,
@@ -37,6 +39,7 @@ CREATE VIEW `product_view` AS
     FROM
         `sakila`.`film` `f` 
     UNION SELECT 
+        `p`.`ProductID` AS `product_id`,
         `p`.`Name` AS `name`,
         `d`.`Description` AS `description`,
         `c`.`Name` AS `category`,
@@ -58,6 +61,7 @@ CREATE VIEW `product_view` AS
     WHERE
         (`adventureworks`.`productmodelproductdescriptionculture`.`CultureID` = 'en') 
     UNION SELECT 
+        `p`.`id` AS `product_id`,
         `p`.`product_name` AS `name`,
         `p`.`description` AS `description`,
         'food' AS `category`,
@@ -65,4 +69,4 @@ CREATE VIEW `product_view` AS
         NULL AS `quantity`,
         'northwind' AS `source`
     FROM
-        `northwind`.`products` `p`
+        `northwind`.`products` `p`;

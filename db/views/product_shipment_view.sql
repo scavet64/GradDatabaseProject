@@ -16,4 +16,4 @@ CREATE VIEW `product_shipment_view` AS
         `o`.`shipment_date` AS `shipment_date`
     FROM
         (`order` `o`
-        JOIN `order_product` `op`)
+        JOIN `order_product` `op`);
