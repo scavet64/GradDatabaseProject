@@ -1,5 +1,5 @@
 SET FOREIGN_KEY_CHECKS=0;
-DROP TABLE IF EXISTS `address`, `category`, `customer`, `customer_address`, `order`, `order_product`, `product`, `rating`, `restock`, `shopping_cart`, `supplier`, `wishlist`;
+DROP TABLE IF EXISTS `address`, `source`, `category`, `customer`, `customer_address`, `order`, `order_product`, `product`, `rating`, `restock`, `shopping_cart`, `supplier`, `wishlist`;
 DROP TRIGGER IF EXISTS `restock_check`;
 DROP TRIGGER IF EXISTS `fulfill_product`;
 DROP TRIGGER IF EXISTS `ship_date`;
@@ -14,6 +14,13 @@ CREATE TABLE `address` (
   `house` varchar(135) NOT NULL,
   `last_update` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`address_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=UTF8MB4;
+
+CREATE TABLE `source` (
+  `source_id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(135) NOT NULL,
+  `last_update` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`source_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=UTF8MB4;
 
 CREATE TABLE `category` (
@@ -47,6 +54,7 @@ CREATE TABLE `customer_address` (
 CREATE TABLE `order` (
   `order_id` int(11) NOT NULL AUTO_INCREMENT,
   `customer_id` int(11) NOT NULL,
+  `customer_source_id` int(11) NOT NULL,
   `order_date` datetime DEFAULT NOW(),
   `shipment_date` datetime DEFAULT NULL,
   `delivery_date` datetime DEFAULT NULL,
@@ -58,10 +66,10 @@ CREATE TABLE `order` (
 CREATE TABLE `order_product` (
   `order_id` int(11) NOT NULL,
   `product_id` int(11) NOT NULL,
-  `source` varchar(135) NOT NULL,
+  `product_source_id` varchar(135) NOT NULL,
   `quantity` int(11) NOT NULL,
   `last_update` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`order_id`,`product_id`,`source`),
+  PRIMARY KEY (`order_id`,`product_id`,`product_source_id`),
   KEY `FK_product_idx` (`product_id`),
   CONSTRAINT `FK_order` FOREIGN KEY (`order_id`) REFERENCES `order` (`order_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=UTF8MB4;
@@ -96,10 +104,12 @@ CREATE TABLE `product` (
 
 CREATE TABLE `rating` (
   `customer_id` int(11) NOT NULL,
+  `customer_source_id` int(11) NOT NULL,
   `product_id` int(11) NOT NULL,
+  `product_source_id` int(11) NOT NULL,
   `rating` int(11) NOT NULL,
   `last_update` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`customer_id`,`product_id`),
+  PRIMARY KEY (`customer_id`, `customer_source_id`, `product_id`, `product_source_id`),
   KEY `FK_product_rating_idx` (`product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=UTF8MB4;
 
@@ -117,20 +127,22 @@ CREATE TABLE `restock` (
 
 CREATE TABLE `shopping_cart` (
   `customer_id` int(11) NOT NULL,
+  `customer_source_id` int(11) NOT NULL,
   `product_id` int(11) NOT NULL,
-  `source` varchar(135) NOT NULL,
+  `product_source_id` int(11) NOT NULL,
   `product_quantity` int(11) NOT NULL,
   `last_update` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`customer_id`,`product_id`,`source`),
+  PRIMARY KEY (`customer_id`, `customer_source_id`, `product_id`, `product_source_id`),
   KEY `FK_product_shopping_cart_idx` (`product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=UTF8MB4;
 
 CREATE TABLE `wishlist` (
     `customer_id` INT(11) NOT NULL,
+    `customer_source_id` int(11) NOT NULL,
     `product_id` INT(11) NOT NULL,
-    `source` varchar(135) NOT NULL,
+    `product_source_id` int(11) NOT NULL,
     `last_update` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (`customer_id`,`product_id`,`source`),
+    PRIMARY KEY (`customer_id`, `customer_source_id`, `product_id`, `product_source_id`),
     KEY `FK_customer_wishlist_idx` (`customer_id`),
     KEY `FK_product_wishlist_idx` (`product_id`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8MB4;

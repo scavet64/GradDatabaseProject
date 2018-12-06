@@ -98,6 +98,39 @@ CREATE VIEW `inactive_user_view` AS
     WHERE
         ((TO_DAYS(NOW()) - TO_DAYS(`customer`.`last_login`)) > 60);
 
+DROP VIEW IF EXISTS `most_wished_for_by_category_view`;
+CREATE VIEW `most_wished_for_by_category_view` AS
+    SELECT 
+        `t`.`product_id` AS `product_id`,
+        `t`.`name` AS `name`,
+        `t`.`source` AS `source`,
+        `t`.`category` AS `category`,
+        `t`.`wishes` AS `wishes`
+    FROM
+        (SELECT 
+            `p`.`product_id` AS `product_id`,
+                `p`.`name` AS `name`,
+                `p`.`source` AS `source`,
+                `p`.`category` AS `category`,
+                COUNT(0) AS `wishes`
+        FROM
+            (`wishlist` `w`
+        JOIN `product_view` `p` ON (((`w`.`product_id` = `p`.`product_id`)
+            AND (`w`.`source` = `p`.`source`))))
+        GROUP BY CONCAT(`p`.`product_id`, `p`.`source`)) `t`
+    WHERE
+        (`t`.`wishes` = (SELECT 
+                MAX(`t`.`wishes`)
+            FROM
+                (SELECT 
+                    COUNT(0) AS `wishes`
+                FROM
+                    (`wishlist` `w`
+                JOIN `product_view` `p` ON (((`w`.`product_id` = `p`.`product_id`)
+                    AND (`w`.`source` = `p`.`source`))))
+                GROUP BY CONCAT(`p`.`product_id`, `p`.`source`)) `t`
+            GROUP BY `t`.`category`))
+
 DROP VIEW IF EXISTS `product_low_sales_view`;
 CREATE VIEW `product_low_sales_view` AS
     SELECT 
@@ -216,4 +249,33 @@ CREATE VIEW `product_view` AS
         'northwind' AS `source`
     FROM
         `northwind`.`products` `p`;
+
+CREATE VIEW `unpurchased_wished_for_items_view` AS
+    SELECT 
+        (SELECT 
+                p.name
+            FROM
+                product_view p
+            WHERE
+                p.product_id = w.product_id
+                    AND p.source = w.product_source) product,
+        (SELECT 
+                CONCAT(c.first_name, ' ', c.last_name)
+            FROM
+                customer_view c
+            WHERE
+                c.customer_id = w.customer_id
+                    AND c.source = w.customer_source) customer
+    FROM
+        wishlist w
+    WHERE
+        CONCAT(product_id, source) NOT IN ((SELECT 
+                CONCAT(product_id, source)
+            FROM
+                `order` o
+                    JOIN
+                order_product USING (order_id)
+            WHERE
+                o.customer_id = w.customer_id
+                    AND o.customer_source = w.customer_source));
 
