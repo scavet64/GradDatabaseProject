@@ -36,6 +36,7 @@ CREATE TABLE `user` (
   `user_id` int(11) NOT NULL AUTO_INCREMENT,
   `password` varchar(135) NOT NULL,
   `customer_id` int(11) NOT NULL,
+  `customer_source` varchar(135) NOT NULL,
   `last_login` datetime NOT NULL DEFAULT now(),
   `last_update` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`user_id`),
@@ -56,7 +57,7 @@ CREATE TABLE `customer_address` (
 CREATE TABLE `order` (
   `order_id` int(11) NOT NULL AUTO_INCREMENT,
   `customer_id` int(11) NOT NULL,
-  `customer_source` int(11) NOT NULL,
+  `customer_source` varchar(135) NOT NULL,
   `order_date` datetime DEFAULT NOW(),
   `shipment_date` datetime DEFAULT NULL,
   `delivery_date` datetime DEFAULT NULL,
@@ -106,9 +107,9 @@ CREATE TABLE `product` (
 
 CREATE TABLE `rating` (
   `customer_id` int(11) NOT NULL,
-  `customer_source` int(11) NOT NULL,
+  `customer_source` varchar(135) NOT NULL,
   `product_id` int(11) NOT NULL,
-  `product_source` int(11) NOT NULL,
+  `product_source` varchar(135) NOT NULL,
   `rating` int(11) NOT NULL,
   `last_update` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`customer_id`, `customer_source`, `product_id`, `product_source`),
@@ -129,9 +130,9 @@ CREATE TABLE `restock` (
 
 CREATE TABLE `shopping_cart` (
   `customer_id` int(11) NOT NULL,
-  `customer_source` int(11) NOT NULL,
+  `customer_source` varchar(135) NOT NULL,
   `product_id` int(11) NOT NULL,
-  `product_source` int(11) NOT NULL,
+  `product_source` varchar(135) NOT NULL,
   `product_quantity` int(11) NOT NULL,
   `last_update` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`customer_id`, `customer_source`, `product_id`, `product_source`),
@@ -140,9 +141,9 @@ CREATE TABLE `shopping_cart` (
 
 CREATE TABLE `wishlist` (
     `customer_id` INT(11) NOT NULL,
-    `customer_source` int(11) NOT NULL,
+    `customer_source` varchar(135) NOT NULL,
     `product_id` INT(11) NOT NULL,
-    `product_source` int(11) NOT NULL,
+    `product_source` varchar(135) NOT NULL,
     `last_update` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`customer_id`, `customer_source`, `product_id`, `product_source`),
     KEY `FK_customer_wishlist_idx` (`customer_id`),
