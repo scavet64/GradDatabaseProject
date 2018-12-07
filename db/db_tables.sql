@@ -1,5 +1,5 @@
 SET FOREIGN_KEY_CHECKS=0;
-DROP TABLE IF EXISTS `address`, `category`, `customer`, `customer_address`, `order`, `order_product`, `product`, `rating`, `restock`, `shopping_cart`, `supplier`, `wishlist`;
+DROP TABLE IF EXISTS `address`, `category`, `customer`, `user`, `customer_address`, `order`, `order_product`, `product`, `rating`, `restock`, `shopping_cart`, `supplier`, `wishlist`;
 DROP TRIGGER IF EXISTS `restock_check`;
 DROP TRIGGER IF EXISTS `fulfill_product`;
 DROP TRIGGER IF EXISTS `ship_date`;
@@ -28,9 +28,18 @@ CREATE TABLE `customer` (
   `first_name` varchar(135) NOT NULL,
   `last_name` varchar(135) NOT NULL,
   `email_address` varchar(135) NOT NULL,
-  `last_login` datetime NOT NULL DEFAULT now(),
   `last_update` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`customer_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=UTF8MB4;
+
+CREATE TABLE `user` (
+  `user_id` int(11) NOT NULL AUTO_INCREMENT,
+  `password` varchar(135) NOT NULL,
+  `customer_id` int(11) NOT NULL,
+  `last_login` datetime NOT NULL DEFAULT now(),
+  `last_update` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`user_id`),
+  KEY `FK_customer_idx` (`customer_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=UTF8MB4;
 
 CREATE TABLE `customer_address` (
