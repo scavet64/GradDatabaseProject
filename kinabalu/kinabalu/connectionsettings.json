@@ -1,0 +1,5 @@
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "server=localhost; userid=CHANGEME; password=CHANGEME; port=3306; database=CHANGEME; Convert Zero Datetime=True"
+  }
+}
