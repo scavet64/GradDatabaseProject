@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Kinabalu.DAL;
@@ -10,6 +11,13 @@ namespace Kinabalu.Controllers
     [Route("api/CustomerController")]
     public class CustomerController : Controller
     {
+        private grad_dbContext _context;
+
+        public CustomerController(grad_dbContext context)
+        {
+            _context = context;
+        }
+        
         // GET
         public IActionResult Index()
         {
@@ -21,14 +29,15 @@ namespace Kinabalu.Controllers
         [HttpGet]
         public async Task<IActionResult> GetLatest()
         {
-            string test = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            using (var db = new ApplicationDb())
-            {
-                await db.Connection.OpenAsync();
-                var query = new CustomerContext(db);
-                var result = await query.LatestPostsAsync();
-                return new OkObjectResult(result);
-            }
+            return new OkObjectResult(_context.Customer.ToList());
+            //string test = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            //using (var db = new ApplicationDb())
+            //{
+            //    await db.Connection.OpenAsync();
+            //    var query = new CustomerContext(db);
+            //    var result = await query.LatestPostsAsync();
+            //    return new OkObjectResult(result);
+            //}
         }
 
         // GET api/async/5
