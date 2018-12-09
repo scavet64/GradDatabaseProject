@@ -16,7 +16,7 @@ CREATE VIEW `most_wished_for_by_category_view` AS
         FROM
             (`wishlist` `w`
         JOIN `product_view` `p` ON (((`w`.`product_id` = `p`.`product_id`)
-            AND (`w`.`source` = `p`.`source`))))
+            AND (`w`.`product_source` = `p`.`source`))))
         GROUP BY CONCAT(`p`.`product_id`, `p`.`source`)) `t`
     WHERE
         (`t`.`wishes` = (SELECT 
@@ -27,6 +27,6 @@ CREATE VIEW `most_wished_for_by_category_view` AS
                 FROM
                     (`wishlist` `w`
                 JOIN `product_view` `p` ON (((`w`.`product_id` = `p`.`product_id`)
-                    AND (`w`.`source` = `p`.`source`))))
+                    AND (`w`.`product_source` = `p`.`source`))))
                 GROUP BY CONCAT(`p`.`product_id`, `p`.`source`)) `t`
-            GROUP BY `t`.`category`))
+            GROUP BY `t`.`category`));
