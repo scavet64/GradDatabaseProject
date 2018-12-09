@@ -25,6 +25,9 @@ CREATE TABLE `category` (
 
 CREATE TABLE `customer` (
   `customer_id` int(11) NOT NULL AUTO_INCREMENT,
+  `first_name` varchar(135) NOT NULL,
+  `last_name` varchar(135) NOT NULL,
+  `email_address` varchar(135) NOT NULL,
   `last_update` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`customer_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=UTF8MB4;
@@ -37,9 +40,6 @@ CREATE TABLE `role` (
 
 CREATE TABLE `user` (
   `user_id` int(11) NOT NULL AUTO_INCREMENT,
-  `first_name` varchar(135) NOT NULL,
-  `last_name` varchar(135) NOT NULL,
-  `email_address` varchar(135) NOT NULL,
   `password` varchar(135) NOT NULL,
   `role_id` int(11),
   `customer_id` int(11) NOT NULL,
