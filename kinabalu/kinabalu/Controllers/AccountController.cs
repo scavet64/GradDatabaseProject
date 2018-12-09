@@ -13,9 +13,11 @@ using Microsoft.Extensions.Options;
 using IdentityDemo.Models;
 using IdentityDemo.Models.AccountViewModels;
 using IdentityDemo.Services;
+using Kinabalu;
 using Kinabalu.Controllers;
 using Kinabalu.Models;
 using Kinabalu.Services;
+using Microsoft.AspNetCore.Http;
 
 namespace IdentityDemo.Controllers
 {
@@ -56,21 +58,94 @@ namespace IdentityDemo.Controllers
             ViewData["ReturnUrl"] = returnUrl;
             if (ModelState.IsValid)
             {
-                // This doesn't count login failures towards account lockout
-                // To enable password failures to trigger account lockout, set lockoutOnFailure: true
+                return LoginWork(model, returnUrl);
+            }
 
-                User loggedinUser = _context.User
-                    .Where(u => (u.EmailAddress.Equals(model.Email) && (u.Password.Equals(model.Password)))).ToList()
-                    .FirstOrDefault();
-                if (loggedinUser != null)
+            // If we got this far, something failed, redisplay form
+            return View(model);
+        }
+
+        private IActionResult LoginWork(LoginViewModel model, string returnUrl)
+        {
+            var entryPoint = (from ep in _context.User
+                join e in _context.Customer on ep.CustomerId equals e.CustomerId
+                where (e.EmailAddress.Equals(model.Email) && ep.Password.Equals(model.Password))
+                select new
                 {
-                    _cookieService.Set("loggedin", loggedinUser.EmailAddress, new TimeSpan(0,30,0), Response);
-                    return RedirectToLocal(returnUrl);
-                }
-                else
+                    email = e.EmailAddress,
+                    password = ep.Password
+                }).ToList().FirstOrDefault();
+
+            if (entryPoint != null)
+            {
+                _cookieService.Set(KinabaluConstants.cookieName, entryPoint.email, new TimeSpan(0, 30, 0), Response);
+                return RedirectToLocal(returnUrl);
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                return View(model);
+            }
+        }
+
+        [HttpGet]
+        public IActionResult Lockout()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult Register(string returnUrl = null)
+        {
+            ViewData["ReturnUrl"] = returnUrl;
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(RegisterViewModel model, string returnUrl = null)
+        {
+            ViewData["ReturnUrl"] = returnUrl;
+            if (ModelState.IsValid)
+            {
+                using (var dbContextTransaction = _context.Database.BeginTransaction())
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                    return View(model);
+                    try
+                    {
+                        //Create a customer object
+                        Customer newCust = new Customer()
+                        {
+                            EmailAddress = model.Email,
+                            FirstName = model.FirstName,
+                            LastName = model.LastName
+                        };
+                        var addedCust = _context.Customer.Add(newCust);
+                        _context.SaveChanges();
+
+                        //Create a user object
+                        var newUser = new User
+                        {
+                            Password = model.Password,
+                            CustomerId = addedCust.Entity.CustomerId,
+                            CustomerSource = KinabaluConstants.KinabaluSource,
+                            RoleId = KinabaluConstants.UserRole
+                        };
+                        _context.User.Add(newUser);
+
+                        _context.SaveChanges();
+                        dbContextTransaction.Commit();
+
+                        return LoginWork(new LoginViewModel()
+                        {
+                            Email = model.Email,
+                            Password = model.Password,
+                            RememberMe = true
+                        }, returnUrl);
+                    }
+                    catch (Exception)
+                    {
+                        dbContextTransaction.Rollback();
+                    }
                 }
             }
 
@@ -78,168 +153,13 @@ namespace IdentityDemo.Controllers
             return View(model);
         }
 
-        //[HttpGet]
-        //[AllowAnonymous]
-        //public async Task<IActionResult> LoginWith2fa(bool rememberMe, string returnUrl = null)
-        //{
-        //    // Ensure the user has gone through the username & password screen first
-        //    var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
-
-        //    if (user == null)
-        //    {
-        //        throw new ApplicationException($"Unable to load two-factor authentication user.");
-        //    }
-
-        //    var model = new LoginWith2faViewModel { RememberMe = rememberMe };
-        //    ViewData["ReturnUrl"] = returnUrl;
-
-        //    return View(model);
-        //}
-
-        //[HttpPost]
-        //[AllowAnonymous]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> LoginWith2fa(LoginWith2faViewModel model, bool rememberMe, string returnUrl = null)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return View(model);
-        //    }
-
-        //    var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
-        //    if (user == null)
-        //    {
-        //        throw new ApplicationException($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
-        //    }
-
-        //    var authenticatorCode = model.TwoFactorCode.Replace(" ", string.Empty).Replace("-", string.Empty);
-
-        //    var result = await _signInManager.TwoFactorAuthenticatorSignInAsync(authenticatorCode, rememberMe, model.RememberMachine);
-
-        //    if (result.Succeeded)
-        //    {
-        //        _logger.LogInformation("User with ID {UserId} logged in with 2fa.", user.Id);
-        //        return RedirectToLocal(returnUrl);
-        //    }
-        //    else if (result.IsLockedOut)
-        //    {
-        //        _logger.LogWarning("User with ID {UserId} account locked out.", user.Id);
-        //        return RedirectToAction(nameof(Lockout));
-        //    }
-        //    else
-        //    {
-        //        _logger.LogWarning("Invalid authenticator code entered for user with ID {UserId}.", user.Id);
-        //        ModelState.AddModelError(string.Empty, "Invalid authenticator code.");
-        //        return View();
-        //    }
-        //}
-
-        //[HttpGet]
-        //[AllowAnonymous]
-        //public async Task<IActionResult> LoginWithRecoveryCode(string returnUrl = null)
-        //{
-        //    // Ensure the user has gone through the username & password screen first
-        //    var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
-        //    if (user == null)
-        //    {
-        //        throw new ApplicationException($"Unable to load two-factor authentication user.");
-        //    }
-
-        //    ViewData["ReturnUrl"] = returnUrl;
-
-        //    return View();
-        //}
-
-        //[HttpPost]
-        //[AllowAnonymous]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> LoginWithRecoveryCode(LoginWithRecoveryCodeViewModel model, string returnUrl = null)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return View(model);
-        //    }
-
-        //    var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
-        //    if (user == null)
-        //    {
-        //        throw new ApplicationException($"Unable to load two-factor authentication user.");
-        //    }
-
-        //    var recoveryCode = model.RecoveryCode.Replace(" ", string.Empty);
-
-        //    var result = await _signInManager.TwoFactorRecoveryCodeSignInAsync(recoveryCode);
-
-        //    if (result.Succeeded)
-        //    {
-        //        _logger.LogInformation("User with ID {UserId} logged in with a recovery code.", user.Id);
-        //        return RedirectToLocal(returnUrl);
-        //    }
-        //    if (result.IsLockedOut)
-        //    {
-        //        _logger.LogWarning("User with ID {UserId} account locked out.", user.Id);
-        //        return RedirectToAction(nameof(Lockout));
-        //    }
-        //    else
-        //    {
-        //        _logger.LogWarning("Invalid recovery code entered for user with ID {UserId}", user.Id);
-        //        ModelState.AddModelError(string.Empty, "Invalid recovery code entered.");
-        //        return View();
-        //    }
-        //}
-
-        //[HttpGet]
-        //[AllowAnonymous]
-        //public IActionResult Lockout()
-        //{
-        //    return View();
-        //}
-
-        //[HttpGet]
-        //[AllowAnonymous]
-        //public IActionResult Register(string returnUrl = null)
-        //{
-        //    ViewData["ReturnUrl"] = returnUrl;
-        //    return View();
-        //}
-
-        //[HttpPost]
-        //[AllowAnonymous]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Register(RegisterViewModel model, string returnUrl = null)
-        //{
-        //    ViewData["ReturnUrl"] = returnUrl;
-        //    if (ModelState.IsValid)
-        //    {
-        //        var user = new User { UserName = model.Email, Email = model.Email };
-        //        var result = await _userManager.CreateAsync(user, model.Password);
-        //        if (result.Succeeded)
-        //        {
-        //            _logger.LogInformation("User created a new account with password.");
-
-        //            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-        //            var callbackUrl = Url.EmailConfirmationLink(user.Id, code, Request.Scheme);
-        //            await _emailSender.SendEmailConfirmationAsync(model.Email, callbackUrl);
-
-        //            await _signInManager.SignInAsync(user, isPersistent: false);
-        //            _logger.LogInformation("User created a new account with password.");
-        //            return RedirectToLocal(returnUrl);
-        //        }
-        //        AddErrors(result);
-        //    }
-
-        //    // If we got this far, something failed, redisplay form
-        //    return View(model);
-        //}
-
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Logout()
-        //{
-        //    await _signInManager.SignOutAsync();
-        //    _logger.LogInformation("User logged out.");
-        //    return RedirectToAction(nameof(HomeController.Index), "Home");
-        //}
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout()
+        {
+            _cookieService.Remove(KinabaluConstants.cookieName, Response);
+            return RedirectToAction(nameof(HomeController.Index), "Home");
+        }
 
         //[HttpPost]
         //[AllowAnonymous]
@@ -448,6 +368,11 @@ namespace IdentityDemo.Controllers
             {
                 return RedirectToAction(nameof(HomeController.Index), "Home");
             }
+        }
+
+        public string GetLoggedInUser(HttpRequest request)
+        {
+            return "test";
         }
 
         //#endregion

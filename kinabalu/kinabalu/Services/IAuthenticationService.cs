@@ -9,5 +9,6 @@ namespace Kinabalu.Services
     public interface IAuthenticationService
     {
         bool isAuthenticated(HttpRequest request);
+        string GetCurrentlyLoggedInUser(HttpRequest request);
     }
 }

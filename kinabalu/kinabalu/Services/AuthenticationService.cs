@@ -20,5 +20,10 @@ namespace Kinabalu.Services
             string cookievalue = _cookieService.Get("loggedin", request);
             return !string.IsNullOrWhiteSpace(cookievalue);
         }
+
+        public string GetCurrentlyLoggedInUser(HttpRequest request)
+        {
+            return _cookieService.Get(KinabaluConstants.cookieName, request);
+        }
     }
 }

@@ -206,8 +206,8 @@ CREATE TRIGGER ship_date BEFORE INSERT ON `order`
 	END;//
 delimiter ;
 
-INSERT INTO `role` (role) VALUES ('Admin');
-INSERT INTO `role` (role) VALUES ('User');
+INSERT INTO `role` (`role_id`,`role`) VALUES (1, 'Admin');
+INSERT INTO `role` (`role_id`,`role`) VALUES (2, 'User');
 
 INSERT INTO `grad_db`.`address` (`address_id`, `state`, `zip`, `city`, `street`, `house`) VALUES (1, 'NJ', '08081', 'Sicklerville', 'Cool things', '123');
 INSERT INTO `grad_db`.`supplier` (`supplier_id`, `name`, `address_id`) VALUES (1, 'CoolThings', '1');

@@ -44,6 +44,7 @@ namespace Kinabalu
             services.AddTransient<IEmailSender, EmailSender>();
             services.AddTransient<ICookieService, CookieService>();
             services.AddTransient<IAuthenticationService, AuthenticationService>();
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
