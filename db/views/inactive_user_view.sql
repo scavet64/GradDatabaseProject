@@ -1,15 +1,15 @@
 DROP VIEW IF EXISTS `inactive_user_view`;
 CREATE VIEW `inactive_user_view` AS
     SELECT 
-        `customer`.`customer_id` AS `customer_id`,
-        `customer`.`first_name` AS `first_name`,
-        `customer`.`last_name` AS `last_name`,
-        `customer`.`email_address` AS `email_address`,
-        `user`.`last_login` AS `last_login`,
-        (TO_DAYS(NOW()) - TO_DAYS(`user`.`last_login`)) AS `days_inactive`
+        `c`.`customer_id` AS `customer_id`,
+        `c`.`first_name` AS `first_name`,
+        `c`.`last_name` AS `last_name`,
+        `c`.`email_address` AS `email_address`,
+        `u`.`last_login` AS `last_login`,
+        (TO_DAYS(NOW()) - TO_DAYS(`u`.`last_login`)) AS `days_inactive`
     FROM
-        `customer`
-	JOIN
-		`user` ON (`customer`.`customer_id` = `user`.`customer_id`)
+        `user` u
+            JOIN
+        `customer_view` c ON (`u`.`customer_id` = `c`.`customer_id` AND `u`.`customer_source` = `c`.`source`)
     WHERE
-        ((TO_DAYS(NOW()) - TO_DAYS(`user`.`last_login`)) > 60);
+        ((TO_DAYS(NOW()) - TO_DAYS(`u`.`last_login`)) > 60);
