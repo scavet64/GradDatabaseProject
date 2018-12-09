@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -24,6 +24,7 @@ namespace Kinabalu.Models
         public virtual DbSet<Product> Product { get; set; }
         public virtual DbSet<Rating> Rating { get; set; }
         public virtual DbSet<Restock> Restock { get; set; }
+        public virtual DbSet<Role> Role { get; set; }
         public virtual DbSet<ShoppingCart> ShoppingCart { get; set; }
         public virtual DbSet<Supplier> Supplier { get; set; }
         public virtual DbSet<User> User { get; set; }
@@ -98,21 +99,6 @@ namespace Kinabalu.Models
                 entity.Property(e => e.CustomerId)
                     .HasColumnName("customer_id")
                     .HasColumnType("int(11)");
-
-                entity.Property(e => e.EmailAddress)
-                    .IsRequired()
-                    .HasColumnName("email_address")
-                    .HasColumnType("varchar(135)");
-
-                entity.Property(e => e.FirstName)
-                    .IsRequired()
-                    .HasColumnName("first_name")
-                    .HasColumnType("varchar(135)");
-
-                entity.Property(e => e.LastName)
-                    .IsRequired()
-                    .HasColumnName("last_name")
-                    .HasColumnType("varchar(135)");
 
                 entity.Property(e => e.LastUpdate)
                     .HasColumnName("last_update")
@@ -386,6 +372,20 @@ namespace Kinabalu.Models
                     .HasConstraintName("FK_product");
             });
 
+            modelBuilder.Entity<Role>(entity =>
+            {
+                entity.ToTable("role");
+
+                entity.Property(e => e.RoleId)
+                    .HasColumnName("role_id")
+                    .HasColumnType("int(11)");
+
+                entity.Property(e => e.Role1)
+                    .IsRequired()
+                    .HasColumnName("role")
+                    .HasColumnType("varchar(135)");
+            });
+
             modelBuilder.Entity<ShoppingCart>(entity =>
             {
                 entity.HasKey(e => new { e.CustomerId, e.CustomerSource, e.ProductId, e.ProductSource });
@@ -456,6 +456,9 @@ namespace Kinabalu.Models
                 entity.HasIndex(e => e.CustomerId)
                     .HasName("FK_customer_idx");
 
+                entity.HasIndex(e => e.RoleId)
+                    .HasName("FK_role_idx");
+
                 entity.Property(e => e.UserId)
                     .HasColumnName("user_id")
                     .HasColumnType("int(11)");
@@ -469,10 +472,25 @@ namespace Kinabalu.Models
                     .HasColumnName("customer_source")
                     .HasColumnType("varchar(135)");
 
+                entity.Property(e => e.EmailAddress)
+                    .IsRequired()
+                    .HasColumnName("email_address")
+                    .HasColumnType("varchar(135)");
+
+                entity.Property(e => e.FirstName)
+                    .IsRequired()
+                    .HasColumnName("first_name")
+                    .HasColumnType("varchar(135)");
+
                 entity.Property(e => e.LastLogin)
                     .HasColumnName("last_login")
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("'CURRENT_TIMESTAMP'");
+
+                entity.Property(e => e.LastName)
+                    .IsRequired()
+                    .HasColumnName("last_name")
+                    .HasColumnType("varchar(135)");
 
                 entity.Property(e => e.LastUpdate)
                     .HasColumnName("last_update")
@@ -484,6 +502,10 @@ namespace Kinabalu.Models
                     .IsRequired()
                     .HasColumnName("password")
                     .HasColumnType("varchar(135)");
+
+                entity.Property(e => e.RoleId)
+                    .HasColumnName("role_id")
+                    .HasColumnType("int(11)");
             });
 
             modelBuilder.Entity<Wishlist>(entity =>

@@ -260,3 +260,6 @@ paket-files/
 __pycache__/
 *.pyc
 kinabalu/kinabalu/secrets.json
+
+dumps/
+adventureworks\.sql

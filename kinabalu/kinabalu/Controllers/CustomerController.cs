@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Kinabalu.DAL;
 using Kinabalu.Models;
+using Kinabalu.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Kinabalu.Controllers
@@ -12,10 +13,12 @@ namespace Kinabalu.Controllers
     public class CustomerController : Controller
     {
         private grad_dbContext _context;
+        private IAuthenticationService authenticationService;
 
-        public CustomerController(grad_dbContext context)
+        public CustomerController(grad_dbContext context, IAuthenticationService authenticationService)
         {
             _context = context;
+            this.authenticationService = authenticationService;
         }
         
         // GET

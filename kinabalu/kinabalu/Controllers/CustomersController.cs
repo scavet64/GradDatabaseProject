@@ -2,26 +2,37 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using IdentityDemo.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Kinabalu.Models;
+using Kinabalu.Services;
 
 namespace Kinabalu.Controllers
 {
     public class CustomersController : Controller
     {
         private readonly grad_dbContext _context;
+        private readonly IAuthenticationService authenticationService;
 
-        public CustomersController(grad_dbContext context)
+        public CustomersController(grad_dbContext context, IAuthenticationService authenticationService)
         {
             _context = context;
+            this.authenticationService = authenticationService;
         }
 
         // GET: Customers
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Customer.ToListAsync());
+            if (authenticationService.isAuthenticated(Request))
+            {
+                return View(await _context.Customer.ToListAsync());
+            }
+            else
+            {
+                return RedirectToAction(nameof(AccountController.Login), "Account");
+            }
         }
 
         // GET: Customers/Details/5
@@ -53,7 +64,7 @@ namespace Kinabalu.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CustomerId,FirstName,LastName,EmailAddress,LastUpdate")] Customer customer)
+        public async Task<IActionResult> Create([Bind("CustomerId,LastUpdate")] Customer customer)
         {
             if (ModelState.IsValid)
             {
@@ -85,7 +96,7 @@ namespace Kinabalu.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("CustomerId,FirstName,LastName,EmailAddress,LastUpdate")] Customer customer)
+        public async Task<IActionResult> Edit(int id, [Bind("CustomerId,LastUpdate")] Customer customer)
         {
             if (id != customer.CustomerId)
             {
