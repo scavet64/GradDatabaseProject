@@ -1,5 +1,5 @@
 SET FOREIGN_KEY_CHECKS=0;
-DROP TABLE IF EXISTS `address`, `category`, `customer`, `customer_address`, `order`, `order_product`, `product`, `rating`, `restock`, `shopping_cart`, `supplier`, `wishlist`;
+DROP TABLE IF EXISTS `address`, `category`, `customer`, `user`, `customer_address`, `order`, `order_product`, `product`, `rating`, `restock`, `shopping_cart`, `supplier`, `wishlist`, `role`;
 DROP TRIGGER IF EXISTS `restock_check`;
 DROP TRIGGER IF EXISTS `fulfill_product`;
 DROP TRIGGER IF EXISTS `ship_date`;
@@ -25,12 +25,30 @@ CREATE TABLE `category` (
 
 CREATE TABLE `customer` (
   `customer_id` int(11) NOT NULL AUTO_INCREMENT,
+  `last_update` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`customer_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=UTF8MB4;
+
+CREATE TABLE `role` (
+	`role_id` int(11) NOT NULL AUTO_INCREMENT,
+    `role` varchar(135) NOT NULL,
+    PRIMARY KEY (`role_id`)
+)ENGINE=InnoDB DEFAULT CHARSET=UTF8MB4;
+
+CREATE TABLE `user` (
+  `user_id` int(11) NOT NULL AUTO_INCREMENT,
   `first_name` varchar(135) NOT NULL,
   `last_name` varchar(135) NOT NULL,
   `email_address` varchar(135) NOT NULL,
+  `password` varchar(135) NOT NULL,
+  `role_id` int(11),
+  `customer_id` int(11) NOT NULL,
+  `customer_source` varchar(135) NOT NULL,
   `last_login` datetime NOT NULL DEFAULT now(),
   `last_update` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`customer_id`)
+  PRIMARY KEY (`user_id`),
+  KEY `FK_customer_idx` (`customer_id`),
+  KEY `FK_role_idx` (`role_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=UTF8MB4;
 
 CREATE TABLE `customer_address` (
@@ -47,7 +65,7 @@ CREATE TABLE `customer_address` (
 CREATE TABLE `order` (
   `order_id` int(11) NOT NULL AUTO_INCREMENT,
   `customer_id` int(11) NOT NULL,
-  `customer_source` int(11) NOT NULL,
+  `customer_source` varchar(135) NOT NULL,
   `order_date` datetime DEFAULT NOW(),
   `shipment_date` datetime DEFAULT NULL,
   `delivery_date` datetime DEFAULT NULL,
@@ -97,9 +115,9 @@ CREATE TABLE `product` (
 
 CREATE TABLE `rating` (
   `customer_id` int(11) NOT NULL,
-  `customer_source` int(11) NOT NULL,
+  `customer_source` varchar(135) NOT NULL,
   `product_id` int(11) NOT NULL,
-  `product_source` int(11) NOT NULL,
+  `product_source` varchar(135) NOT NULL,
   `rating` int(11) NOT NULL,
   `last_update` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`customer_id`, `customer_source`, `product_id`, `product_source`),
@@ -120,9 +138,9 @@ CREATE TABLE `restock` (
 
 CREATE TABLE `shopping_cart` (
   `customer_id` int(11) NOT NULL,
-  `customer_source` int(11) NOT NULL,
+  `customer_source` varchar(135) NOT NULL,
   `product_id` int(11) NOT NULL,
-  `product_source` int(11) NOT NULL,
+  `product_source` varchar(135) NOT NULL,
   `product_quantity` int(11) NOT NULL,
   `last_update` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`customer_id`, `customer_source`, `product_id`, `product_source`),
@@ -131,9 +149,9 @@ CREATE TABLE `shopping_cart` (
 
 CREATE TABLE `wishlist` (
     `customer_id` INT(11) NOT NULL,
-    `customer_source` int(11) NOT NULL,
+    `customer_source` varchar(135) NOT NULL,
     `product_id` INT(11) NOT NULL,
-    `product_source` int(11) NOT NULL,
+    `product_source` varchar(135) NOT NULL,
     `last_update` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`customer_id`, `customer_source`, `product_id`, `product_source`),
     KEY `FK_customer_wishlist_idx` (`customer_id`),
@@ -187,3 +205,15 @@ CREATE TRIGGER ship_date BEFORE INSERT ON `order`
 
 	END;//
 delimiter ;
+
+INSERT INTO `role` (role) VALUES ('Admin');
+INSERT INTO `role` (role) VALUES ('User');
+
+INSERT INTO `grad_db`.`address` (`address_id`, `state`, `zip`, `city`, `street`, `house`) VALUES (1, 'NJ', '08081', 'Sicklerville', 'Cool things', '123');
+INSERT INTO `grad_db`.`supplier` (`supplier_id`, `name`, `address_id`) VALUES (1, 'CoolThings', '1');
+INSERT INTO `grad_db`.`category` (`category_id`, `name`) VALUES (1, 'CoolThings');
+INSERT INTO `grad_db`.`product` (`product_id`, `name`, `description`, `supplier_id`, `category_id`, `cost`, `reorder_level`, `weight_unit_of_measure`, `weight`, `quantity`, `last_update`) VALUES ('1', 'test', 'test', '1', '1', '23', '10', 'oz', '5', '11', '2018-12-02 18:09:10');
+-- INSERT INTO `grad_db`.`customer` (`customer_id`, `first_name`, `last_name`, `email_address`) VALUES ('1', 'bob', 'dole', 'bob@gmail.com');
+UPDATE `grad_db`.`product` SET `quantity`='1' WHERE  `product_id`=1;
+UPDATE restock SET fulfilled='1' WHERE `product_id`=1;
+INSERT INTO `grad_db`.`order` (`customer_id`, `customer_source`) VALUES ('1', 'kinabalu');

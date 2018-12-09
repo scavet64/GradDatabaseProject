@@ -15,6 +15,7 @@ namespace Kinabalu
         private static readonly Lazy<IConfigurationRoot> LazyConfig = new Lazy<IConfigurationRoot>(() => new ConfigurationBuilder()
             .SetBasePath(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location))
             .AddJsonFile("appsettings.json")
+            .AddJsonFile("secrets.json")
             .Build());
     }
 }
