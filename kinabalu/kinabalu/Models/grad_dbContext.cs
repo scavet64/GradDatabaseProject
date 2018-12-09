@@ -29,6 +29,8 @@ namespace Kinabalu.Models
         public virtual DbSet<Supplier> Supplier { get; set; }
         public virtual DbSet<User> User { get; set; }
         public virtual DbSet<Wishlist> Wishlist { get; set; }
+        public virtual DbSet<BelowMinimumStockView> BelowMinimumStockView { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -541,6 +543,28 @@ namespace Kinabalu.Models
                     .HasColumnType("timestamp")
                     .HasDefaultValueSql("'CURRENT_TIMESTAMP'")
                     .ValueGeneratedOnAddOrUpdate();
+            });
+
+            modelBuilder.Entity<BelowMinimumStockView>(entity =>
+            {
+                entity.HasKey(e => e.ProductId);
+
+                entity.ToTable("below_minimum_stock_view");
+
+                entity.Property(e => e.ProductId)
+                    .HasColumnName("product_id");
+
+                entity.Property(e => e.Name)
+                    .HasColumnName("name");
+
+                entity.Property(e => e.Quantity)
+                    .HasColumnName("quantity");
+
+                entity.Property(e => e.ReorderLevel)
+                    .HasColumnName("reorder_level");
+
+                entity.Property(e => e.Difference)
+                    .HasColumnName("difference");
             });
         }
     }

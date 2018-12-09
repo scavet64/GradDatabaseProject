@@ -45,6 +45,14 @@ namespace Kinabalu.Controllers
             return View(product);
         }
 
+        // GET: Products/NotSelling/
+        public IActionResult NotSelling()
+        {
+            var tempp = _context.BelowMinimumStockView.ToList();
+            //TODO: Make this a real aspnet view
+            return new OkObjectResult(tempp);
+        }
+
         // GET: Products/Create
         public IActionResult Create()
         {
