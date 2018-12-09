@@ -39,17 +39,17 @@ CREATE TABLE `role` (
 )ENGINE=InnoDB DEFAULT CHARSET=UTF8MB4;
 
 CREATE TABLE `user` (
-  `user_id` int(11) NOT NULL AUTO_INCREMENT,
-  `password` varchar(135) NOT NULL,
-  `role_id` int(11),
-  `customer_id` int(11) NOT NULL,
-  `customer_source` varchar(135) NOT NULL,
-  `last_login` datetime NOT NULL DEFAULT now(),
-  `last_update` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`user_id`),
-  KEY `FK_customer_idx` (`customer_id`),
-  KEY `FK_role_idx` (`role_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=UTF8MB4;
+    `user_id` INT(11) NOT NULL AUTO_INCREMENT,
+    `password` VARCHAR(135) NOT NULL,
+    `role_id` INT(11),
+    `customer_id` INT(11) NOT NULL,
+    `customer_source` VARCHAR(135) NOT NULL,
+    `last_login` DATETIME NOT NULL DEFAULT NOW(),
+    `last_update` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`user_id`),
+    KEY `FK_customer_idx` (`customer_id`),
+    KEY `FK_role_idx` (`role_id`)
+)  ENGINE=INNODB DEFAULT CHARSET=UTF8MB4;
 
 CREATE TABLE `customer_address` (
   `customer_id` int(11) NOT NULL,
@@ -209,11 +209,11 @@ delimiter ;
 INSERT INTO `role` (role) VALUES ('Admin');
 INSERT INTO `role` (role) VALUES ('User');
 
-INSERT INTO `grad_db`.`address` (`address_id`, `state`, `zip`, `city`, `street`, `house`) VALUES (1, 'NJ', '08081', 'Sicklerville', 'Cool things', '123');
-INSERT INTO `grad_db`.`supplier` (`supplier_id`, `name`, `address_id`) VALUES (1, 'CoolThings', '1');
-INSERT INTO `grad_db`.`category` (`category_id`, `name`) VALUES (1, 'CoolThings');
-INSERT INTO `grad_db`.`product` (`product_id`, `name`, `description`, `supplier_id`, `category_id`, `cost`, `reorder_level`, `weight_unit_of_measure`, `weight`, `quantity`, `last_update`) VALUES ('1', 'test', 'test', '1', '1', '23', '10', 'oz', '5', '11', '2018-12-02 18:09:10');
+INSERT INTO `address` (`address_id`, `state`, `zip`, `city`, `street`, `house`) VALUES (1, 'NJ', '08081', 'Sicklerville', 'Cool things', '123');
+INSERT INTO `supplier` (`supplier_id`, `name`, `address_id`) VALUES (1, 'CoolThings', '1');
+INSERT INTO `category` (`category_id`, `name`) VALUES (1, 'CoolThings');
+INSERT INTO `product` (`product_id`, `name`, `description`, `supplier_id`, `category_id`, `cost`, `reorder_level`, `weight_unit_of_measure`, `weight`, `quantity`, `last_update`) VALUES ('1', 'test', 'test', '1', '1', '23', '10', 'oz', '5', '11', '2018-12-02 18:09:10');
 -- INSERT INTO `grad_db`.`customer` (`customer_id`, `first_name`, `last_name`, `email_address`) VALUES ('1', 'bob', 'dole', 'bob@gmail.com');
-UPDATE `grad_db`.`product` SET `quantity`='1' WHERE  `product_id`=1;
+UPDATE `product` SET `quantity`='1' WHERE  `product_id`=1;
 UPDATE restock SET fulfilled='1' WHERE `product_id`=1;
-INSERT INTO `grad_db`.`order` (`customer_id`, `customer_source`) VALUES ('1', 'kinabalu');
+INSERT INTO `order` (`customer_id`, `customer_source`) VALUES ('1', 'kinabalu');
