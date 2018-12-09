@@ -53,7 +53,7 @@ namespace Kinabalu.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CustomerId,FirstName,LastName,EmailAddress,LastLogin,LastUpdate")] Customer customer)
+        public async Task<IActionResult> Create([Bind("CustomerId,FirstName,LastName,EmailAddress,LastUpdate")] Customer customer)
         {
             if (ModelState.IsValid)
             {
@@ -85,7 +85,7 @@ namespace Kinabalu.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("CustomerId,FirstName,LastName,EmailAddress,LastLogin,LastUpdate")] Customer customer)
+        public async Task<IActionResult> Edit(int id, [Bind("CustomerId,FirstName,LastName,EmailAddress,LastUpdate")] Customer customer)
         {
             if (id != customer.CustomerId)
             {

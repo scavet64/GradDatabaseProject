@@ -6,6 +6,10 @@ namespace Kinabalu.Models
 {
     public partial class grad_dbContext : DbContext
     {
+        public grad_dbContext()
+        {
+        }
+
         public grad_dbContext(DbContextOptions<grad_dbContext> options)
             : base(options)
         {
@@ -22,13 +26,14 @@ namespace Kinabalu.Models
         public virtual DbSet<Restock> Restock { get; set; }
         public virtual DbSet<ShoppingCart> ShoppingCart { get; set; }
         public virtual DbSet<Supplier> Supplier { get; set; }
+        public virtual DbSet<User> User { get; set; }
         public virtual DbSet<Wishlist> Wishlist { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Address>(entity =>
             {
-                entity.ToTable("address", "grad_db");
+                entity.ToTable("address");
 
                 entity.Property(e => e.AddressId)
                     .HasColumnName("address_id")
@@ -37,42 +42,38 @@ namespace Kinabalu.Models
                 entity.Property(e => e.City)
                     .IsRequired()
                     .HasColumnName("city")
-                    .HasMaxLength(135)
-                    .IsUnicode(false);
+                    .HasColumnType("varchar(135)");
 
                 entity.Property(e => e.House)
                     .IsRequired()
                     .HasColumnName("house")
-                    .HasMaxLength(135)
-                    .IsUnicode(false);
+                    .HasColumnType("varchar(135)");
 
                 entity.Property(e => e.LastUpdate)
                     .HasColumnName("last_update")
                     .HasColumnType("timestamp")
-                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                    .HasDefaultValueSql("'CURRENT_TIMESTAMP'")
+                    .ValueGeneratedOnAddOrUpdate();
 
                 entity.Property(e => e.State)
                     .IsRequired()
                     .HasColumnName("state")
-                    .HasMaxLength(135)
-                    .IsUnicode(false);
+                    .HasColumnType("varchar(135)");
 
                 entity.Property(e => e.Street)
                     .IsRequired()
                     .HasColumnName("street")
-                    .HasMaxLength(135)
-                    .IsUnicode(false);
+                    .HasColumnType("varchar(135)");
 
                 entity.Property(e => e.Zip)
                     .IsRequired()
                     .HasColumnName("zip")
-                    .HasMaxLength(135)
-                    .IsUnicode(false);
+                    .HasColumnType("varchar(135)");
             });
 
             modelBuilder.Entity<Category>(entity =>
             {
-                entity.ToTable("category", "grad_db");
+                entity.ToTable("category");
 
                 entity.Property(e => e.CategoryId)
                     .HasColumnName("category_id")
@@ -81,18 +82,18 @@ namespace Kinabalu.Models
                 entity.Property(e => e.LastUpdate)
                     .HasColumnName("last_update")
                     .HasColumnType("timestamp")
-                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                    .HasDefaultValueSql("'CURRENT_TIMESTAMP'")
+                    .ValueGeneratedOnAddOrUpdate();
 
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasColumnName("name")
-                    .HasMaxLength(135)
-                    .IsUnicode(false);
+                    .HasColumnType("varchar(135)");
             });
 
             modelBuilder.Entity<Customer>(entity =>
             {
-                entity.ToTable("customer", "grad_db");
+                entity.ToTable("customer");
 
                 entity.Property(e => e.CustomerId)
                     .HasColumnName("customer_id")
@@ -101,36 +102,30 @@ namespace Kinabalu.Models
                 entity.Property(e => e.EmailAddress)
                     .IsRequired()
                     .HasColumnName("email_address")
-                    .HasMaxLength(135)
-                    .IsUnicode(false);
+                    .HasColumnType("varchar(135)");
 
                 entity.Property(e => e.FirstName)
                     .IsRequired()
                     .HasColumnName("first_name")
-                    .HasMaxLength(135)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.LastLogin)
-                    .HasColumnName("last_login")
-                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                    .HasColumnType("varchar(135)");
 
                 entity.Property(e => e.LastName)
                     .IsRequired()
                     .HasColumnName("last_name")
-                    .HasMaxLength(135)
-                    .IsUnicode(false);
+                    .HasColumnType("varchar(135)");
 
                 entity.Property(e => e.LastUpdate)
                     .HasColumnName("last_update")
                     .HasColumnType("timestamp")
-                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                    .HasDefaultValueSql("'CURRENT_TIMESTAMP'")
+                    .ValueGeneratedOnAddOrUpdate();
             });
 
             modelBuilder.Entity<CustomerAddress>(entity =>
             {
                 entity.HasKey(e => new { e.CustomerId, e.AddressId });
 
-                entity.ToTable("customer_address", "grad_db");
+                entity.ToTable("customer_address");
 
                 entity.HasIndex(e => e.AddressId)
                     .HasName("FK_address_idx");
@@ -146,13 +141,13 @@ namespace Kinabalu.Models
                 entity.Property(e => e.LastUpdate)
                     .HasColumnName("last_update")
                     .HasColumnType("timestamp")
-                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                    .HasDefaultValueSql("'CURRENT_TIMESTAMP'")
+                    .ValueGeneratedOnAddOrUpdate();
 
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasColumnName("name")
-                    .HasMaxLength(135)
-                    .IsUnicode(false);
+                    .HasColumnType("varchar(135)");
 
                 entity.HasOne(d => d.Address)
                     .WithMany(p => p.CustomerAddress)
@@ -169,7 +164,7 @@ namespace Kinabalu.Models
 
             modelBuilder.Entity<Order>(entity =>
             {
-                entity.ToTable("order", "grad_db");
+                entity.ToTable("order");
 
                 entity.HasIndex(e => e.CustomerId)
                     .HasName("FK_order_customer_idx");
@@ -182,25 +177,36 @@ namespace Kinabalu.Models
                     .HasColumnName("customer_id")
                     .HasColumnType("int(11)");
 
-                entity.Property(e => e.DeliveryDate).HasColumnName("delivery_date");
+                entity.Property(e => e.CustomerSource)
+                    .IsRequired()
+                    .HasColumnName("customer_source")
+                    .HasColumnType("varchar(135)");
+
+                entity.Property(e => e.DeliveryDate)
+                    .HasColumnName("delivery_date")
+                    .HasColumnType("datetime");
 
                 entity.Property(e => e.LastUpdate)
                     .HasColumnName("last_update")
                     .HasColumnType("timestamp")
-                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                    .HasDefaultValueSql("'CURRENT_TIMESTAMP'")
+                    .ValueGeneratedOnAddOrUpdate();
 
                 entity.Property(e => e.OrderDate)
                     .HasColumnName("order_date")
-                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("'CURRENT_TIMESTAMP'");
 
-                entity.Property(e => e.ShipmentDate).HasColumnName("shipment_date");
+                entity.Property(e => e.ShipmentDate)
+                    .HasColumnName("shipment_date")
+                    .HasColumnType("datetime");
             });
 
             modelBuilder.Entity<OrderProduct>(entity =>
             {
-                entity.HasKey(e => new { e.OrderId, e.ProductId, e.Source });
+                entity.HasKey(e => new { e.OrderId, e.ProductId, e.ProductSource });
 
-                entity.ToTable("order_product", "grad_db");
+                entity.ToTable("order_product");
 
                 entity.HasIndex(e => e.ProductId)
                     .HasName("FK_product_idx");
@@ -213,15 +219,15 @@ namespace Kinabalu.Models
                     .HasColumnName("product_id")
                     .HasColumnType("int(11)");
 
-                entity.Property(e => e.Source)
-                    .HasColumnName("source")
-                    .HasMaxLength(135)
-                    .IsUnicode(false);
+                entity.Property(e => e.ProductSource)
+                    .HasColumnName("product_source")
+                    .HasColumnType("varchar(135)");
 
                 entity.Property(e => e.LastUpdate)
                     .HasColumnName("last_update")
                     .HasColumnType("timestamp")
-                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                    .HasDefaultValueSql("'CURRENT_TIMESTAMP'")
+                    .ValueGeneratedOnAddOrUpdate();
 
                 entity.Property(e => e.Quantity)
                     .HasColumnName("quantity")
@@ -236,7 +242,7 @@ namespace Kinabalu.Models
 
             modelBuilder.Entity<Product>(entity =>
             {
-                entity.ToTable("product", "grad_db");
+                entity.ToTable("product");
 
                 entity.HasIndex(e => e.CategoryId)
                     .HasName("FK_product_category_idx");
@@ -257,19 +263,18 @@ namespace Kinabalu.Models
                 entity.Property(e => e.Description)
                     .IsRequired()
                     .HasColumnName("description")
-                    .HasMaxLength(135)
-                    .IsUnicode(false);
+                    .HasColumnType("varchar(135)");
 
                 entity.Property(e => e.LastUpdate)
                     .HasColumnName("last_update")
                     .HasColumnType("timestamp")
-                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                    .HasDefaultValueSql("'CURRENT_TIMESTAMP'")
+                    .ValueGeneratedOnAddOrUpdate();
 
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasColumnName("name")
-                    .HasMaxLength(135)
-                    .IsUnicode(false);
+                    .HasColumnType("varchar(135)");
 
                 entity.Property(e => e.Quantity)
                     .HasColumnName("quantity")
@@ -288,8 +293,7 @@ namespace Kinabalu.Models
                 entity.Property(e => e.WeightUnitOfMeasure)
                     .IsRequired()
                     .HasColumnName("weight_unit_of_measure")
-                    .HasMaxLength(135)
-                    .IsUnicode(false);
+                    .HasColumnType("varchar(135)");
 
                 entity.HasOne(d => d.Category)
                     .WithMany(p => p.Product)
@@ -306,9 +310,9 @@ namespace Kinabalu.Models
 
             modelBuilder.Entity<Rating>(entity =>
             {
-                entity.HasKey(e => new { e.CustomerId, e.ProductId });
+                entity.HasKey(e => new { e.CustomerId, e.CustomerSource, e.ProductId, e.ProductSource });
 
-                entity.ToTable("rating", "grad_db");
+                entity.ToTable("rating");
 
                 entity.HasIndex(e => e.ProductId)
                     .HasName("FK_product_rating_idx");
@@ -317,14 +321,23 @@ namespace Kinabalu.Models
                     .HasColumnName("customer_id")
                     .HasColumnType("int(11)");
 
+                entity.Property(e => e.CustomerSource)
+                    .HasColumnName("customer_source")
+                    .HasColumnType("varchar(135)");
+
                 entity.Property(e => e.ProductId)
                     .HasColumnName("product_id")
                     .HasColumnType("int(11)");
 
+                entity.Property(e => e.ProductSource)
+                    .HasColumnName("product_source")
+                    .HasColumnType("varchar(135)");
+
                 entity.Property(e => e.LastUpdate)
                     .HasColumnName("last_update")
                     .HasColumnType("timestamp")
-                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                    .HasDefaultValueSql("'CURRENT_TIMESTAMP'")
+                    .ValueGeneratedOnAddOrUpdate();
 
                 entity.Property(e => e.Rating1)
                     .HasColumnName("rating")
@@ -333,7 +346,7 @@ namespace Kinabalu.Models
 
             modelBuilder.Entity<Restock>(entity =>
             {
-                entity.ToTable("restock", "grad_db");
+                entity.ToTable("restock");
 
                 entity.HasIndex(e => e.ProductId)
                     .HasName("FK_product_restock_idx");
@@ -345,16 +358,18 @@ namespace Kinabalu.Models
                 entity.Property(e => e.Fulfilled)
                     .HasColumnName("fulfilled")
                     .HasColumnType("tinyint(1)")
-                    .HasDefaultValueSql("0");
+                    .HasDefaultValueSql("'0'");
 
                 entity.Property(e => e.LastUpdate)
                     .HasColumnName("last_update")
                     .HasColumnType("timestamp")
-                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                    .HasDefaultValueSql("'CURRENT_TIMESTAMP'")
+                    .ValueGeneratedOnAddOrUpdate();
 
                 entity.Property(e => e.OrderDate)
                     .HasColumnName("order_date")
-                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("'CURRENT_TIMESTAMP'");
 
                 entity.Property(e => e.ProductId)
                     .HasColumnName("product_id")
@@ -373,9 +388,9 @@ namespace Kinabalu.Models
 
             modelBuilder.Entity<ShoppingCart>(entity =>
             {
-                entity.HasKey(e => new { e.CustomerId, e.ProductId, e.Source });
+                entity.HasKey(e => new { e.CustomerId, e.CustomerSource, e.ProductId, e.ProductSource });
 
-                entity.ToTable("shopping_cart", "grad_db");
+                entity.ToTable("shopping_cart");
 
                 entity.HasIndex(e => e.ProductId)
                     .HasName("FK_product_shopping_cart_idx");
@@ -384,19 +399,23 @@ namespace Kinabalu.Models
                     .HasColumnName("customer_id")
                     .HasColumnType("int(11)");
 
+                entity.Property(e => e.CustomerSource)
+                    .HasColumnName("customer_source")
+                    .HasColumnType("varchar(135)");
+
                 entity.Property(e => e.ProductId)
                     .HasColumnName("product_id")
                     .HasColumnType("int(11)");
 
-                entity.Property(e => e.Source)
-                    .HasColumnName("source")
-                    .HasMaxLength(135)
-                    .IsUnicode(false);
+                entity.Property(e => e.ProductSource)
+                    .HasColumnName("product_source")
+                    .HasColumnType("varchar(135)");
 
                 entity.Property(e => e.LastUpdate)
                     .HasColumnName("last_update")
                     .HasColumnType("timestamp")
-                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                    .HasDefaultValueSql("'CURRENT_TIMESTAMP'")
+                    .ValueGeneratedOnAddOrUpdate();
 
                 entity.Property(e => e.ProductQuantity)
                     .HasColumnName("product_quantity")
@@ -405,7 +424,7 @@ namespace Kinabalu.Models
 
             modelBuilder.Entity<Supplier>(entity =>
             {
-                entity.ToTable("supplier", "grad_db");
+                entity.ToTable("supplier");
 
                 entity.HasIndex(e => e.AddressId)
                     .HasName("FK_address_supplier_idx");
@@ -421,20 +440,57 @@ namespace Kinabalu.Models
                 entity.Property(e => e.LastUpdate)
                     .HasColumnName("last_update")
                     .HasColumnType("timestamp")
-                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                    .HasDefaultValueSql("'CURRENT_TIMESTAMP'")
+                    .ValueGeneratedOnAddOrUpdate();
 
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasColumnName("name")
-                    .HasMaxLength(135)
-                    .IsUnicode(false);
+                    .HasColumnType("varchar(135)");
+            });
+
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.ToTable("user");
+
+                entity.HasIndex(e => e.CustomerId)
+                    .HasName("FK_customer_idx");
+
+                entity.Property(e => e.UserId)
+                    .HasColumnName("user_id")
+                    .HasColumnType("int(11)");
+
+                entity.Property(e => e.CustomerId)
+                    .HasColumnName("customer_id")
+                    .HasColumnType("int(11)");
+
+                entity.Property(e => e.CustomerSource)
+                    .IsRequired()
+                    .HasColumnName("customer_source")
+                    .HasColumnType("varchar(135)");
+
+                entity.Property(e => e.LastLogin)
+                    .HasColumnName("last_login")
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("'CURRENT_TIMESTAMP'");
+
+                entity.Property(e => e.LastUpdate)
+                    .HasColumnName("last_update")
+                    .HasColumnType("timestamp")
+                    .HasDefaultValueSql("'CURRENT_TIMESTAMP'")
+                    .ValueGeneratedOnAddOrUpdate();
+
+                entity.Property(e => e.Password)
+                    .IsRequired()
+                    .HasColumnName("password")
+                    .HasColumnType("varchar(135)");
             });
 
             modelBuilder.Entity<Wishlist>(entity =>
             {
-                entity.HasKey(e => new { e.CustomerId, e.ProductId, e.Source });
+                entity.HasKey(e => new { e.CustomerId, e.CustomerSource, e.ProductId, e.ProductSource });
 
-                entity.ToTable("wishlist", "grad_db");
+                entity.ToTable("wishlist");
 
                 entity.HasIndex(e => e.CustomerId)
                     .HasName("FK_customer_wishlist_idx");
@@ -446,19 +502,23 @@ namespace Kinabalu.Models
                     .HasColumnName("customer_id")
                     .HasColumnType("int(11)");
 
+                entity.Property(e => e.CustomerSource)
+                    .HasColumnName("customer_source")
+                    .HasColumnType("varchar(135)");
+
                 entity.Property(e => e.ProductId)
                     .HasColumnName("product_id")
                     .HasColumnType("int(11)");
 
-                entity.Property(e => e.Source)
-                    .HasColumnName("source")
-                    .HasMaxLength(135)
-                    .IsUnicode(false);
+                entity.Property(e => e.ProductSource)
+                    .HasColumnName("product_source")
+                    .HasColumnType("varchar(135)");
 
                 entity.Property(e => e.LastUpdate)
                     .HasColumnName("last_update")
                     .HasColumnType("timestamp")
-                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                    .HasDefaultValueSql("'CURRENT_TIMESTAMP'")
+                    .ValueGeneratedOnAddOrUpdate();
             });
         }
     }

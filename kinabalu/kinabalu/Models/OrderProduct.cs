@@ -7,7 +7,7 @@ namespace Kinabalu.Models
     {
         public int OrderId { get; set; }
         public int ProductId { get; set; }
-        public string Source { get; set; }
+        public string ProductSource { get; set; }
         public int Quantity { get; set; }
         public DateTime LastUpdate { get; set; }
 

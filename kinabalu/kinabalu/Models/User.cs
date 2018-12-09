@@ -3,13 +3,13 @@ using System.Collections.Generic;
 
 namespace Kinabalu.Models
 {
-    public partial class ShoppingCart
+    public partial class User
     {
+        public int UserId { get; set; }
+        public string Password { get; set; }
         public int CustomerId { get; set; }
         public string CustomerSource { get; set; }
-        public int ProductId { get; set; }
-        public string ProductSource { get; set; }
-        public int ProductQuantity { get; set; }
+        public DateTime LastLogin { get; set; }
         public DateTime LastUpdate { get; set; }
     }
 }
