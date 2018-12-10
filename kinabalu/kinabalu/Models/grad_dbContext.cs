@@ -466,6 +466,12 @@ namespace Kinabalu.Models
                     .IsRequired()
                     .HasColumnName("name")
                     .HasColumnType("varchar(135)");
+
+                entity.HasOne(d => d.Address)
+                    .WithMany(p => p.Supplier)
+                    .HasForeignKey(d => d.AddressId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_address_supplier_idx");
             });
 
             modelBuilder.Entity<User>(entity =>
