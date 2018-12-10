@@ -18,16 +18,16 @@
             @Html.DisplayFor(model => model.Name)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.AddressId)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.AddressId)
-        </dd>
-        <dt>
             @Html.DisplayNameFor(model => model.LastUpdate)
         </dt>
         <dd>
             @Html.DisplayFor(model => model.LastUpdate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Address)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Address.FullAddress)
         </dd>
     </dl>
 </div>

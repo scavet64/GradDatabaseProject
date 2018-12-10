@@ -23,11 +23,16 @@ namespace Kinabalu.Controllers
             _authenticationService = authenticationService;
         }
 
+        /// <summary>
+        /// Checks the authentication for the logged in user.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <param name="response">The response.</param>
+        /// <returns></returns>
         private bool CheckAuthentication(HttpRequest request, HttpResponse response)
         {
             return (_authenticationService.isAuthenticated(request, response) &&
                     _authenticationService.isUserAdmin(request));
-
         }
 
         // GET: Suppliers
@@ -38,7 +43,8 @@ namespace Kinabalu.Controllers
                 return RedirectToAction(nameof(AccountController.AccessDenied), "Account");
             }
 
-            return View(await _context.Supplier.ToListAsync());
+            var grad_dbContext = _context.Supplier.Include(s => s.Address);
+            return View(await grad_dbContext.ToListAsync());
         }
 
         // GET: Suppliers/Details/5
@@ -55,6 +61,7 @@ namespace Kinabalu.Controllers
             }
 
             var supplier = await _context.Supplier
+                .Include(s => s.Address)
                 .FirstOrDefaultAsync(m => m.SupplierId == id);
             if (supplier == null)
             {
@@ -71,6 +78,8 @@ namespace Kinabalu.Controllers
             {
                 return RedirectToAction(nameof(AccountController.AccessDenied), "Account");
             }
+
+            ViewData["AddressId"] = new SelectList(_context.Address, "AddressId", "City");
             return View();
         }
 
@@ -85,12 +94,14 @@ namespace Kinabalu.Controllers
             {
                 return RedirectToAction(nameof(AccountController.AccessDenied), "Account");
             }
+
             if (ModelState.IsValid)
             {
                 _context.Add(supplier);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["AddressId"] = new SelectList(_context.Address, "AddressId", "City", supplier.AddressId);
             return View(supplier);
         }
 
@@ -101,6 +112,7 @@ namespace Kinabalu.Controllers
             {
                 return RedirectToAction(nameof(AccountController.AccessDenied), "Account");
             }
+
             if (id == null)
             {
                 return NotFound();
@@ -111,6 +123,7 @@ namespace Kinabalu.Controllers
             {
                 return NotFound();
             }
+            ViewData["AddressId"] = new SelectList(_context.Address, "AddressId", "City", supplier.AddressId);
             return View(supplier);
         }
 
@@ -125,6 +138,7 @@ namespace Kinabalu.Controllers
             {
                 return RedirectToAction(nameof(AccountController.AccessDenied), "Account");
             }
+
             if (id != supplier.SupplierId)
             {
                 return NotFound();
@@ -150,6 +164,7 @@ namespace Kinabalu.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["AddressId"] = new SelectList(_context.Address, "AddressId", "City", supplier.AddressId);
             return View(supplier);
         }
 
@@ -160,12 +175,14 @@ namespace Kinabalu.Controllers
             {
                 return RedirectToAction(nameof(AccountController.AccessDenied), "Account");
             }
+
             if (id == null)
             {
                 return NotFound();
             }
 
             var supplier = await _context.Supplier
+                .Include(s => s.Address)
                 .FirstOrDefaultAsync(m => m.SupplierId == id);
             if (supplier == null)
             {
@@ -184,6 +201,7 @@ namespace Kinabalu.Controllers
             {
                 return RedirectToAction(nameof(AccountController.AccessDenied), "Account");
             }
+
             var supplier = await _context.Supplier.FindAsync(id);
             _context.Supplier.Remove(supplier);
             await _context.SaveChangesAsync();

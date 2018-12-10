@@ -19,6 +19,14 @@ namespace Kinabalu.Models
         public string House { get; set; }
         public DateTime LastUpdate { get; set; }
 
+        public string FullAddress
+        {
+            get
+            {
+                return $"{House} {Street}, {City}, {State} {Zip}";
+            }
+        }
+
         public ICollection<CustomerAddress> CustomerAddress { get; set; }
         public ICollection<Supplier> Supplier { get; set; }
     }
