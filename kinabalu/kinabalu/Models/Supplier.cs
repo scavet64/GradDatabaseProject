@@ -15,6 +15,7 @@ namespace Kinabalu.Models
         public int AddressId { get; set; }
         public DateTime LastUpdate { get; set; }
 
+        public Address Address { get; set; }
         public ICollection<Product> Product { get; set; }
     }
 }

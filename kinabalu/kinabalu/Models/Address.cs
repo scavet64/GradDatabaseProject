@@ -8,6 +8,7 @@ namespace Kinabalu.Models
         public Address()
         {
             CustomerAddress = new HashSet<CustomerAddress>();
+            Supplier = new HashSet<Supplier>();
         }
 
         public int AddressId { get; set; }
@@ -19,5 +20,6 @@ namespace Kinabalu.Models
         public DateTime LastUpdate { get; set; }
 
         public ICollection<CustomerAddress> CustomerAddress { get; set; }
+        public ICollection<Supplier> Supplier { get; set; }
     }
 }

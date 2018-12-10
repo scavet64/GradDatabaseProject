@@ -91,7 +91,7 @@ CREATE TABLE `supplier` (
   `address_id` int(11) NOT NULL,
   `last_update` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`supplier_id`),
-  KEY `FK_address_supplier_idx` (`address_id`)
+  CONSTRAINT `FK_address_supplier_idx` FOREIGN KEY (`address_id`) REFERENCES `address` (`address_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=UTF8MB4;
 
 CREATE TABLE `product` (
