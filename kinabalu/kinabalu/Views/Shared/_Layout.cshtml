@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+﻿@using Kinabalu.Services
+@inject IAuthenticationService AuthenticationService;
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor;
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -31,8 +34,16 @@
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
                     <li><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
-                    <li><a asp-area="" asp-controller="Home" asp-action="About">About</a></li>
-                    <li><a asp-area="" asp-controller="Home" asp-action="Contact">Contact</a></li>
+                    @if (AuthenticationService.isUserAdmin(HttpContextAccessor.HttpContext.Request))
+                    {
+                        <li><a asp-area="" asp-controller="Customers" asp-action="All">Customers</a></li>
+                        <li><a asp-area="" asp-controller="Products" asp-action="Index">Products</a></li>
+                        <li><a asp-area="" asp-controller="Categories" asp-action="Index">Categories</a></li>
+                    }
+                    else
+                    {
+                        <li><a asp-area="" asp-controller="Products" asp-action="Index">Products</a></li>
+                    }
                 </ul>
                 @await Html.PartialAsync("_LoginPartial")
             </div>

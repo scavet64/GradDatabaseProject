@@ -29,6 +29,10 @@ namespace Kinabalu.Models
         public virtual DbSet<Supplier> Supplier { get; set; }
         public virtual DbSet<User> User { get; set; }
         public virtual DbSet<Wishlist> Wishlist { get; set; }
+        public virtual DbSet<BelowMinimumStockView> BelowMinimumStockView { get; set; }
+        public virtual DbSet<CustomerView> CustomerView { get; set; }
+        public virtual DbSet<ProductsView> ProductsView { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -541,6 +545,78 @@ namespace Kinabalu.Models
                     .HasColumnType("timestamp")
                     .HasDefaultValueSql("'CURRENT_TIMESTAMP'")
                     .ValueGeneratedOnAddOrUpdate();
+            });
+
+            modelBuilder.Entity<BelowMinimumStockView>(entity =>
+            {
+                entity.HasKey(e => e.ProductId);
+
+                entity.ToTable("below_minimum_stock_view");
+
+                entity.Property(e => e.ProductId)
+                    .HasColumnName("product_id");
+
+                entity.Property(e => e.Name)
+                    .HasColumnName("name");
+
+                entity.Property(e => e.Quantity)
+                    .HasColumnName("quantity");
+
+                entity.Property(e => e.ReorderLevel)
+                    .HasColumnName("reorder_level");
+
+                entity.Property(e => e.Difference)
+                    .HasColumnName("difference");
+            });
+
+            modelBuilder.Entity<CustomerView>(entity =>
+            {
+                entity.HasKey(e => e.CustomerId);
+
+                entity.ToTable("customer_view");
+
+                entity.Property(e => e.CustomerId)
+                    .HasColumnName("customer_id");
+
+                entity.Property(e => e.FirstName)
+                    .HasColumnName("first_name");
+
+                entity.Property(e => e.LastName)
+                    .HasColumnName("last_name");
+
+                entity.Property(e => e.EmailAddress)
+                    .HasColumnName("email_address");
+
+                entity.Property(e => e.Address)
+                    .HasColumnName("address");
+            });
+
+            modelBuilder.Entity<ProductsView>(entity =>
+            {
+                entity.HasKey(e => e.ProductId);
+
+                entity.ToTable("product_view");
+
+                entity.Property(e => e.ProductId)
+                    .HasColumnName("product_id");
+
+                entity.Property(e => e.Name)
+                    .HasColumnName("name");
+
+                entity.Property(e => e.Description)
+                    .HasColumnName("description");
+
+                entity.Property(e => e.Category)
+                    .HasColumnName("category");
+
+                entity.Property(e => e.Cost)
+                    .HasColumnName("cost");
+
+                entity.Property(e => e.Quantity)
+                    .HasColumnName("quantity");
+
+                entity.Property(e => e.Source)
+                    .HasColumnName("source");
             });
         }
     }

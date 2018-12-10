@@ -2,46 +2,29 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using IdentityDemo.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Kinabalu.Models;
-using Kinabalu.Services;
 
 namespace Kinabalu.Controllers
 {
-    public class CustomersController : Controller
+    public class ShoppingCartsController : Controller
     {
         private readonly grad_dbContext _context;
-        private readonly IAuthenticationService authenticationService;
 
-        public CustomersController(grad_dbContext context, IAuthenticationService authenticationService)
+        public ShoppingCartsController(grad_dbContext context)
         {
             _context = context;
-            this.authenticationService = authenticationService;
         }
 
-        // GET: Customers
+        // GET: ShoppingCarts
         public async Task<IActionResult> Index()
         {
-            if (authenticationService.isAuthenticated(Request, Response))
-            {
-                return View(await _context.Customer.ToListAsync());
-            }
-            else
-            {
-                return RedirectToAction(nameof(AccountController.Login), "Account");
-            }
+            return View(await _context.ShoppingCart.ToListAsync());
         }
 
-        // GET: Customers/All/
-        public IActionResult All()
-        {
-            return View(_context.CustomerView.ToHashSet().Take(200));
-        }
-
-        // GET: Customers/Details/5
+        // GET: ShoppingCarts/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -49,17 +32,39 @@ namespace Kinabalu.Controllers
                 return NotFound();
             }
 
-            var customer = await _context.Customer
+            var shoppingCart = await _context.ShoppingCart
                 .FirstOrDefaultAsync(m => m.CustomerId == id);
-            if (customer == null)
+            if (shoppingCart == null)
             {
                 return NotFound();
             }
 
-            return View(customer);
+            return View(shoppingCart);
         }
 
-        // GET: Customers/Edit/5
+        // GET: ShoppingCarts/Create
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        // POST: ShoppingCarts/Create
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("CustomerId,CustomerSource,ProductId,ProductSource,ProductQuantity,LastUpdate")] ShoppingCart shoppingCart)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Add(shoppingCart);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            return View(shoppingCart);
+        }
+
+        // GET: ShoppingCarts/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -67,22 +72,22 @@ namespace Kinabalu.Controllers
                 return NotFound();
             }
 
-            var customer = await _context.Customer.FindAsync(id);
-            if (customer == null)
+            var shoppingCart = await _context.ShoppingCart.FindAsync(id);
+            if (shoppingCart == null)
             {
                 return NotFound();
             }
-            return View(customer);
+            return View(shoppingCart);
         }
 
-        // POST: Customers/Edit/5
+        // POST: ShoppingCarts/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("CustomerId,LastUpdate")] Customer customer)
+        public async Task<IActionResult> Edit(int id, [Bind("CustomerId,CustomerSource,ProductId,ProductSource,ProductQuantity,LastUpdate")] ShoppingCart shoppingCart)
         {
-            if (id != customer.CustomerId)
+            if (id != shoppingCart.CustomerId)
             {
                 return NotFound();
             }
@@ -91,12 +96,12 @@ namespace Kinabalu.Controllers
             {
                 try
                 {
-                    _context.Update(customer);
+                    _context.Update(shoppingCart);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CustomerExists(customer.CustomerId))
+                    if (!ShoppingCartExists(shoppingCart.CustomerId))
                     {
                         return NotFound();
                     }
@@ -107,10 +112,10 @@ namespace Kinabalu.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(customer);
+            return View(shoppingCart);
         }
 
-        // GET: Customers/Delete/5
+        // GET: ShoppingCarts/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -118,30 +123,30 @@ namespace Kinabalu.Controllers
                 return NotFound();
             }
 
-            var customer = await _context.Customer
+            var shoppingCart = await _context.ShoppingCart
                 .FirstOrDefaultAsync(m => m.CustomerId == id);
-            if (customer == null)
+            if (shoppingCart == null)
             {
                 return NotFound();
             }
 
-            return View(customer);
+            return View(shoppingCart);
         }
 
-        // POST: Customers/Delete/5
+        // POST: ShoppingCarts/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var customer = await _context.Customer.FindAsync(id);
-            _context.Customer.Remove(customer);
+            var shoppingCart = await _context.ShoppingCart.FindAsync(id);
+            _context.ShoppingCart.Remove(shoppingCart);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool CustomerExists(int id)
+        private bool ShoppingCartExists(int id)
         {
-            return _context.Customer.Any(e => e.CustomerId == id);
+            return _context.ShoppingCart.Any(e => e.CustomerId == id);
         }
     }
 }

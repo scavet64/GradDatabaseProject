@@ -21,6 +21,13 @@ namespace Kinabalu.Controllers
         // GET: Products
         public async Task<IActionResult> Index()
         {
+            var temp = _context.ProductsView;
+            return View(temp.ToList());
+        }
+
+        // GET: Products
+        public async Task<IActionResult> Local()
+        {
             var grad_dbContext = _context.Product.Include(p => p.Category).Include(p => p.Supplier);
             return View(await grad_dbContext.ToListAsync());
         }
@@ -43,6 +50,14 @@ namespace Kinabalu.Controllers
             }
 
             return View(product);
+        }
+
+        // GET: Products/NotSelling/
+        public IActionResult NotSelling()
+        {
+            var tempp = _context.BelowMinimumStockView.ToList();
+            //TODO: Make this a real aspnet view
+            return new OkObjectResult(tempp);
         }
 
         // GET: Products/Create
