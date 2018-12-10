@@ -21,6 +21,13 @@ namespace Kinabalu.Controllers
         // GET: Products
         public async Task<IActionResult> Index()
         {
+            var temp = _context.ProductsView;
+            return View(temp.ToList());
+        }
+
+        // GET: Products
+        public async Task<IActionResult> Local()
+        {
             var grad_dbContext = _context.Product.Include(p => p.Category).Include(p => p.Supplier);
             return View(await grad_dbContext.ToListAsync());
         }
