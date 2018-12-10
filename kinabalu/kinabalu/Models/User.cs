@@ -12,5 +12,7 @@ namespace Kinabalu.Models
         public string CustomerSource { get; set; }
         public DateTime LastLogin { get; set; }
         public DateTime LastUpdate { get; set; }
+
+        public Role Role { get; set; }
     }
 }

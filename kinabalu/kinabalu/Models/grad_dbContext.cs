@@ -516,6 +516,11 @@ namespace Kinabalu.Models
                 entity.Property(e => e.RoleId)
                     .HasColumnName("role_id")
                     .HasColumnType("int(11)");
+
+                entity.HasOne(d => d.Role)
+                    .WithMany(p => p.User)
+                    .HasForeignKey(d => d.RoleId)
+                    .HasConstraintName("FK_role_idx");
             });
 
             modelBuilder.Entity<Wishlist>(entity =>
