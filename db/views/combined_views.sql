@@ -30,8 +30,8 @@ CREATE VIEW `customer_view` AS
         'kinabalu' AS `source`
     FROM
         ((`customer`
-        JOIN `customer_address` ON ((`customer`.`customer_id` = `customer_address`.`customer_id`)))
-        JOIN `address` ON ((`customer_address`.`address_id` = `address`.`address_id`))) 
+        LEFT JOIN `customer_address` ON ((`customer`.`customer_id` = `customer_address`.`customer_id`)))
+        LEFT JOIN `address` ON ((`customer_address`.`address_id` = `address`.`address_id`))) 
     UNION SELECT 
         `adventureworks`.`contact`.`ContactID` AS `customer_id`,
         `adventureworks`.`contact`.`FirstName` AS `first_name`,
