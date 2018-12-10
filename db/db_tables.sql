@@ -209,11 +209,26 @@ delimiter ;
 INSERT INTO `role` (role) VALUES ('Admin');
 INSERT INTO `role` (role) VALUES ('User');
 
-INSERT INTO `address` (`address_id`, `state`, `zip`, `city`, `street`, `house`) VALUES (1, 'NJ', '08081', 'Sicklerville', 'Cool things', '123');
-INSERT INTO `supplier` (`supplier_id`, `name`, `address_id`) VALUES (1, 'CoolThings', '1');
-INSERT INTO `category` (`category_id`, `name`) VALUES (1, 'CoolThings');
-INSERT INTO `product` (`product_id`, `name`, `description`, `supplier_id`, `category_id`, `cost`, `reorder_level`, `weight_unit_of_measure`, `weight`, `quantity`, `last_update`) VALUES ('1', 'test', 'test', '1', '1', '23', '10', 'oz', '5', '11', '2018-12-02 18:09:10');
--- INSERT INTO `grad_db`.`customer` (`customer_id`, `first_name`, `last_name`, `email_address`) VALUES ('1', 'bob', 'dole', 'bob@gmail.com');
+INSERT INTO `address` (`state`, `zip`, `city`, `street`, `house`) VALUES ('NJ', '08081', 'Sicklerville', 'Cool things', '123');
+INSERT INTO `address` (`state`, `zip`, `city`, `street`, `house`) VALUES ('NJ', '08012', 'Blackwood', 'Nice Street', '15');
+INSERT INTO `address` (`state`, `zip`, `city`, `street`, `house`) VALUES ('NJ', '08022', 'Cool Town', 'Rainbow Road', '7');
+
+
+INSERT INTO `supplier` (`name`, `address_id`) VALUES ('CoolThings', '1');
+INSERT INTO `supplier` (`name`, `address_id`) VALUES ('BestStuff', '2');
+
+INSERT INTO `category` (`name`) VALUES ('Cool Things');
+INSERT INTO `category` (`name`) VALUES ('Fun Stuff');
+INSERT INTO `category` (`name`) VALUES ('Cool');
+
+INSERT INTO `product` (`name`, `description`, `supplier_id`, `category_id`, `cost`, `reorder_level`, `weight_unit_of_measure`, `weight`, `quantity`) VALUES ('test', 'test', '1', '1', '23', '10', 'oz', '5', '11');
+INSERT INTO `product` (`name`, `description`, `supplier_id`, `category_id`, `cost`, `reorder_level`, `weight_unit_of_measure`, `weight`, `quantity`) VALUES ('Fun thing', 'Its fun!', '2', '1', '23', '10', 'oz', '5', '8');
+INSERT INTO `product` (`name`, `description`, `supplier_id`, `category_id`, `cost`, `reorder_level`, `weight_unit_of_measure`, `weight`, `quantity`) VALUES ('Really Fun Product', 'its really fun!', '1', '1', '23', '10', 'oz', '5', '11');
+
+INSERT INTO `customer` (`first_name`, `last_name`, `email_address`) VALUES ('1', 'bob', 'dole', 'bob@gmail.com');
+INSERT INTO `customer` (`first_name`, `last_name`, `email_address`) VALUES ('1', 'jim', 'jam', 'jim@gmail.com');
+INSERT INTO `customer` (`first_name`, `last_name`, `email_address`) VALUES ('1', 'jill', 'jack', 'jill@gmail.com');
+
 UPDATE `product` SET `quantity`='1' WHERE  `product_id`=1;
 UPDATE restock SET fulfilled='1' WHERE `product_id`=1;
 INSERT INTO `order` (`customer_id`, `customer_source`) VALUES ('1', 'kinabalu');
