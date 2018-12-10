@@ -48,7 +48,7 @@ CREATE TABLE `user` (
     `last_update` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`user_id`),
     KEY `FK_customer_idx` (`customer_id`),
-    KEY `FK_role_idx` (`role_id`)
+    CONSTRAINT `FK_role_idx` FOREIGN KEY (`role_id`) REFERENCES `role` (`role_id`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8MB4;
 
 CREATE TABLE `customer_address` (
