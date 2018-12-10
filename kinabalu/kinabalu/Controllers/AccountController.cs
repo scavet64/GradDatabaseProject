@@ -134,26 +134,29 @@ namespace IdentityDemo.Controllers
                         string source;
                         if (customer == null)
                         {
-                            //Create a customer object
+                            //Create a new customer object for our database
                             Customer newCust = new Customer()
                             {
                                 EmailAddress = model.Email,
                                 FirstName = model.FirstName,
                                 LastName = model.LastName
                             };
+                            //add the new user then save our changes
                             var addedCust = _context.Customer.Add(newCust);
-                            source = KinabaluConstants.KinabaluSource;
-
-                            customerID = addedCust.Entity.CustomerId;
                             _context.SaveChanges();
+
+                            // fill our local variables
+                            customerID = addedCust.Entity.CustomerId;
+                            source = KinabaluConstants.KinabaluSource;
                         }
                         else
                         {
+                            //customer was from another database, use its values for source and ID
                             customerID = customer.customerID;
                             source = customer.source;
                         }
 
-                        //Create a user object
+                        //Create a user object for our database
                         var newUser = new User
                         {
                             Password = model.Password,
@@ -161,21 +164,15 @@ namespace IdentityDemo.Controllers
                             CustomerSource = source,
                             RoleId = KinabaluConstants.UserRole
                         };
-                        _context.User.Add(newUser);
+                        var addedUsr = _context.User.Add(newUser);
 
                         _context.SaveChanges();
                         dbContextTransaction.Commit();
 
-                        if (LoginWork(new LoginViewModel()
-                        {
-                            Email = model.Email,
-                            Password = model.Password,
-                            RememberMe = true
-                        }, returnUrl))
-                        {
-                            //After registering, redirect to the homepage
-                            return RedirectToLocal(returnUrl);
-                        }
+                        //After registering, redirect to the homepage
+                        _cookieService.Set(KinabaluConstants.cookieName, addedUsr.Entity.UserId.ToString(), new TimeSpan(0, 30, 0), Response);
+                        return RedirectToAction(nameof(HomeController.Index), "Home");
+
                     }
                     catch (Exception)
                     {
