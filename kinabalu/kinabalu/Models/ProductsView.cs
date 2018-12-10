@@ -14,5 +14,7 @@ namespace Kinabalu.Models
         public double Cost { get; set; }
         public int Quantity { get; set; }
         public string Source { get; set; }
+        public double AverageRating { get; set; }
+        public double AverageReceivedRating { get; set; }
     }
 }

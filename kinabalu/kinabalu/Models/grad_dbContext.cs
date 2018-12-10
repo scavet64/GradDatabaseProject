@@ -623,6 +623,12 @@ namespace Kinabalu.Models
 
                 entity.Property(e => e.Source)
                     .HasColumnName("source");
+
+                entity.Property(e => e.AverageRating)
+                    .HasColumnName("average_rating");
+
+                entity.Property(e => e.AverageReceivedRating)
+                    .HasColumnName("average_received_rating");
             });
         }
     }

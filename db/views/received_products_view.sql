@@ -1,5 +1,5 @@
-DROP VIEW IF EXISTS `recieved_products_view`;
-CREATE VIEW `recieved_products_view` AS
+DROP VIEW IF EXISTS `received_products_view`;
+CREATE VIEW `received_products_view` AS
     SELECT 
         `o`.`customer_id` AS `customer_id`,
         `o`.`customer_source` AS `customer_source`,

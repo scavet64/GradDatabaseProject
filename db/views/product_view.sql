@@ -14,7 +14,7 @@ CREATE VIEW `product_view` AS
         `p`.`quantity` AS `quantity`,
         'kinabalu' AS `source`,
         average_rating(`p`.`product_id`, 'kinabalu') AS `average_rating`,
-		average_recieved_rating(`p`.`product_id`, 'kinabalu') AS `average_recieved_rating`
+		average_received_rating(`p`.`product_id`, 'kinabalu') AS `average_recieved_rating`
     FROM
         `product` `p` 
     UNION SELECT 
@@ -39,7 +39,7 @@ CREATE VIEW `product_view` AS
                 (`i`.`film_id` = `f`.`film_id`)) AS `quantity`,
         'sakila' AS `source`,
         average_rating(`f`.`film_id`, 'sakila') AS `average_rating`,
-		average_recieved_rating(`f`.`film_id`, 'sakila') AS `average_recieved_rating`
+		average_received_rating(`f`.`film_id`, 'sakila') AS `average_recieved_rating`
     FROM
         `sakila`.`film` `f` 
     UNION SELECT 
@@ -57,7 +57,7 @@ CREATE VIEW `product_view` AS
             GROUP BY `i`.`ProductID`) AS `quantity`,
         'adventureworks' AS `source`,
         average_rating(`p`.`ProductID`, 'adventureworks') AS `average_rating`,
-		average_recieved_rating(`p`.`ProductID`, 'adventureworks') AS `average_recieved_rating`
+		average_received_rating(`p`.`ProductID`, 'adventureworks') AS `average_recieved_rating`
     FROM
         ((((`adventureworks`.`product` `p`
         JOIN `adventureworks`.`productmodelproductdescriptionculture` ON ((`p`.`ProductModelID` = `adventureworks`.`productmodelproductdescriptionculture`.`ProductModelID`)))
@@ -75,6 +75,6 @@ CREATE VIEW `product_view` AS
         NULL AS `quantity`,
         'northwind' AS `source`,
         average_rating(`p`.`id`, 'northwind') AS `average_rating`,
-		average_recieved_rating(`p`.`id`, 'northwind') AS `average_recieved_rating`
+		average_received_rating(`p`.`id`, 'northwind') AS `average_recieved_rating`
     FROM
         `northwind`.`products` `p`;
