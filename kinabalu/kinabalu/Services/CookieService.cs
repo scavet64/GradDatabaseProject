@@ -30,7 +30,7 @@ namespace Kinabalu.Services
         /// <summary>  
         /// Get the cookie  
         /// </summary>  
-        /// <param name="key">Key </param>
+        /// <param name="key">Key</param>
         /// <param name="response">The response to get the cookie from</param>
         /// <returns>string value</returns>  
         public string Get(string key, HttpRequest request)

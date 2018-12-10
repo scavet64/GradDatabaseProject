@@ -1,23 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using IdentityDemo.Models;
+﻿using IdentityDemo.Models;
 using IdentityDemo.Models.AccountViewModels;
 using IdentityDemo.Services;
 using Kinabalu;
 using Kinabalu.Controllers;
 using Kinabalu.Models;
 using Kinabalu.Services;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace IdentityDemo.Controllers
 {
@@ -58,35 +58,43 @@ namespace IdentityDemo.Controllers
             ViewData["ReturnUrl"] = returnUrl;
             if (ModelState.IsValid)
             {
-                return LoginWork(model, returnUrl);
+
+                if (LoginWork(model, returnUrl))
+                {
+                    return RedirectToLocal(returnUrl);
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    return View(model);
+                }
+
             }
 
             // If we got this far, something failed, redisplay form
             return View(model);
         }
 
-        private IActionResult LoginWork(LoginViewModel model, string returnUrl)
+        private bool LoginWork(LoginViewModel model, string returnUrl)
         {
             var entryPoint = (from ep in _context.User
-                join e in _context.CustomerView 
-                    on new { A = ep.CustomerId, B = ep.CustomerSource} equals new { A = e.CustomerId, B = e.Source}
-                where (e.EmailAddress.Equals(model.Email) && ep.Password.Equals(model.Password))
-                select new
-                {
-                    email = e.EmailAddress,
-                    password = ep.Password
-                }).ToList().FirstOrDefault();
+                              join e in _context.CustomerView
+                                  on new { A = ep.CustomerId, B = ep.CustomerSource } equals new { A = e.CustomerId, B = e.Source }
+                              where (e.EmailAddress.Equals(model.Email) && ep.Password.Equals(model.Password))
+                              select new
+                              {
+                                  Id = ep.CustomerId,
+                                  email = e.EmailAddress,
+                                  password = ep.Password
+                              }).ToList().FirstOrDefault();
 
             if (entryPoint != null)
             {
-                _cookieService.Set(KinabaluConstants.cookieName, entryPoint.email, new TimeSpan(0, 30, 0), Response);
-                return RedirectToLocal(returnUrl);
+                _cookieService.Set(KinabaluConstants.cookieName, entryPoint.Id.ToString(), new TimeSpan(0, 30, 0), Response);
+                return true;
             }
-            else
-            {
-                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                return View(model);
-            }
+
+            return false;
         }
 
         [HttpGet]
@@ -115,12 +123,12 @@ namespace IdentityDemo.Controllers
                     {
                         //Check for email in view
                         var customer = (from e in _context.CustomerView
-                            where (e.EmailAddress.Equals(model.Email))
-                            select new
-                            {
-                                customerID = e.CustomerId,
-                                source = e.Source
-                            }).ToList().FirstOrDefault();
+                                        where (e.EmailAddress.Equals(model.Email))
+                                        select new
+                                        {
+                                            customerID = e.CustomerId,
+                                            source = e.Source
+                                        }).ToList().FirstOrDefault();
 
                         int customerID;
                         string source;
@@ -158,12 +166,16 @@ namespace IdentityDemo.Controllers
                         _context.SaveChanges();
                         dbContextTransaction.Commit();
 
-                        return LoginWork(new LoginViewModel()
+                        if (LoginWork(new LoginViewModel()
                         {
                             Email = model.Email,
                             Password = model.Password,
                             RememberMe = true
-                        }, returnUrl);
+                        }, returnUrl))
+                        {
+                            //After registering, redirect to the homepage
+                            return RedirectToLocal(returnUrl);
+                        }
                     }
                     catch (Exception)
                     {
@@ -173,6 +185,7 @@ namespace IdentityDemo.Controllers
             }
 
             // If we got this far, something failed, redisplay form
+            ModelState.AddModelError(string.Empty, "Problem creating the new user");
             return View(model);
         }
 

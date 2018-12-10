@@ -25,7 +25,7 @@ namespace Kinabalu.Controllers
         // GET: Customers
         public async Task<IActionResult> Index()
         {
-            if (authenticationService.isAuthenticated(Request))
+            if (authenticationService.isAuthenticated(Request, Response))
             {
                 return View(await _context.Customer.ToListAsync());
             }
@@ -35,10 +35,10 @@ namespace Kinabalu.Controllers
             }
         }
 
-        // GET: Customers/Test/
-        public IActionResult Test()
+        // GET: Customers/All/
+        public IActionResult All()
         {
-            return new OkObjectResult(_context.CustomerView.ToList());
+            return View(_context.CustomerView.ToHashSet().Take(200));
         }
 
         // GET: Customers/Details/5
@@ -56,28 +56,6 @@ namespace Kinabalu.Controllers
                 return NotFound();
             }
 
-            return View(customer);
-        }
-
-        // GET: Customers/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Customers/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CustomerId,LastUpdate")] Customer customer)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(customer);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
             return View(customer);
         }
 
