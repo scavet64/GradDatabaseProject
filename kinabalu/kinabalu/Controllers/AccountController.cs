@@ -68,7 +68,8 @@ namespace IdentityDemo.Controllers
         private IActionResult LoginWork(LoginViewModel model, string returnUrl)
         {
             var entryPoint = (from ep in _context.User
-                join e in _context.Customer on ep.CustomerId equals e.CustomerId
+                join e in _context.CustomerView 
+                    on new { A = ep.CustomerId, B = ep.CustomerSource} equals new { A = e.CustomerId, B = e.Source}
                 where (e.EmailAddress.Equals(model.Email) && ep.Password.Equals(model.Password))
                 select new
                 {
@@ -112,22 +113,44 @@ namespace IdentityDemo.Controllers
                 {
                     try
                     {
-                        //Create a customer object
-                        Customer newCust = new Customer()
+                        //Check for email in view
+                        var customer = (from e in _context.CustomerView
+                            where (e.EmailAddress.Equals(model.Email))
+                            select new
+                            {
+                                customerID = e.CustomerId,
+                                source = e.Source
+                            }).ToList().FirstOrDefault();
+
+                        int customerID;
+                        string source;
+                        if (customer == null)
                         {
-                            EmailAddress = model.Email,
-                            FirstName = model.FirstName,
-                            LastName = model.LastName
-                        };
-                        var addedCust = _context.Customer.Add(newCust);
-                        _context.SaveChanges();
+                            //Create a customer object
+                            Customer newCust = new Customer()
+                            {
+                                EmailAddress = model.Email,
+                                FirstName = model.FirstName,
+                                LastName = model.LastName
+                            };
+                            var addedCust = _context.Customer.Add(newCust);
+                            source = KinabaluConstants.KinabaluSource;
+
+                            customerID = addedCust.Entity.CustomerId;
+                            _context.SaveChanges();
+                        }
+                        else
+                        {
+                            customerID = customer.customerID;
+                            source = customer.source;
+                        }
 
                         //Create a user object
                         var newUser = new User
                         {
                             Password = model.Password,
-                            CustomerId = addedCust.Entity.CustomerId,
-                            CustomerSource = KinabaluConstants.KinabaluSource,
+                            CustomerId = customerID,
+                            CustomerSource = source,
                             RoleId = KinabaluConstants.UserRole
                         };
                         _context.User.Add(newUser);

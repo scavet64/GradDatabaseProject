@@ -30,6 +30,7 @@ namespace Kinabalu.Models
         public virtual DbSet<User> User { get; set; }
         public virtual DbSet<Wishlist> Wishlist { get; set; }
         public virtual DbSet<BelowMinimumStockView> BelowMinimumStockView { get; set; }
+        public virtual DbSet<CustomerView> CustomerView { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -566,6 +567,29 @@ namespace Kinabalu.Models
                 entity.Property(e => e.Difference)
                     .HasColumnName("difference");
             });
+
+            modelBuilder.Entity<CustomerView>(entity =>
+            {
+                entity.HasKey(e => e.CustomerId);
+
+                entity.ToTable("customer_view");
+
+                entity.Property(e => e.CustomerId)
+                    .HasColumnName("customer_id");
+
+                entity.Property(e => e.FirstName)
+                    .HasColumnName("first_name");
+
+                entity.Property(e => e.LastName)
+                    .HasColumnName("last_name");
+
+                entity.Property(e => e.EmailAddress)
+                    .HasColumnName("email_address");
+
+                entity.Property(e => e.Address)
+                    .HasColumnName("address");
+            });
+
         }
     }
 }

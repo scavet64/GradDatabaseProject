@@ -35,6 +35,12 @@ namespace Kinabalu.Controllers
             }
         }
 
+        // GET: Customers/Test/
+        public IActionResult Test()
+        {
+            return new OkObjectResult(_context.CustomerView.ToList());
+        }
+
         // GET: Customers/Details/5
         public async Task<IActionResult> Details(int? id)
         {
