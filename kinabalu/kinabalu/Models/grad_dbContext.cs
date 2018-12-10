@@ -100,6 +100,21 @@ namespace Kinabalu.Models
                     .HasColumnName("customer_id")
                     .HasColumnType("int(11)");
 
+                entity.Property(e => e.EmailAddress)
+                    .IsRequired()
+                    .HasColumnName("email_address")
+                    .HasColumnType("varchar(135)");
+
+                entity.Property(e => e.FirstName)
+                    .IsRequired()
+                    .HasColumnName("first_name")
+                    .HasColumnType("varchar(135)");
+
+                entity.Property(e => e.LastName)
+                    .IsRequired()
+                    .HasColumnName("last_name")
+                    .HasColumnType("varchar(135)");
+
                 entity.Property(e => e.LastUpdate)
                     .HasColumnName("last_update")
                     .HasColumnType("timestamp")
@@ -472,25 +487,10 @@ namespace Kinabalu.Models
                     .HasColumnName("customer_source")
                     .HasColumnType("varchar(135)");
 
-                entity.Property(e => e.EmailAddress)
-                    .IsRequired()
-                    .HasColumnName("email_address")
-                    .HasColumnType("varchar(135)");
-
-                entity.Property(e => e.FirstName)
-                    .IsRequired()
-                    .HasColumnName("first_name")
-                    .HasColumnType("varchar(135)");
-
                 entity.Property(e => e.LastLogin)
                     .HasColumnName("last_login")
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("'CURRENT_TIMESTAMP'");
-
-                entity.Property(e => e.LastName)
-                    .IsRequired()
-                    .HasColumnName("last_name")
-                    .HasColumnType("varchar(135)");
 
                 entity.Property(e => e.LastUpdate)
                     .HasColumnName("last_update")

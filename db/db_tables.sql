@@ -206,8 +206,8 @@ CREATE TRIGGER ship_date BEFORE INSERT ON `order`
 	END;//
 delimiter ;
 
-INSERT INTO `role` (role) VALUES ('Admin');
-INSERT INTO `role` (role) VALUES ('User');
+INSERT INTO `role` (`role_id`,`role`) VALUES (1, 'Admin');
+INSERT INTO `role` (`role_id`,`role`) VALUES (2, 'User');
 
 INSERT INTO `address` (`state`, `zip`, `city`, `street`, `house`) VALUES ('NJ', '08081', 'Sicklerville', 'Cool things', '123');
 INSERT INTO `address` (`state`, `zip`, `city`, `street`, `house`) VALUES ('NJ', '08012', 'Blackwood', 'Nice Street', '15');
