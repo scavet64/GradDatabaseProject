@@ -31,6 +31,7 @@ namespace Kinabalu.Models
         public virtual DbSet<Wishlist> Wishlist { get; set; }
         public virtual DbSet<BelowMinimumStockView> BelowMinimumStockView { get; set; }
         public virtual DbSet<CustomerView> CustomerView { get; set; }
+        public virtual DbSet<ProductsView> ProductsView { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -590,6 +591,33 @@ namespace Kinabalu.Models
                     .HasColumnName("address");
             });
 
+            modelBuilder.Entity<ProductsView>(entity =>
+            {
+                entity.HasKey(e => e.ProductId);
+
+                entity.ToTable("product_view");
+
+                entity.Property(e => e.ProductId)
+                    .HasColumnName("product_id");
+
+                entity.Property(e => e.Name)
+                    .HasColumnName("name");
+
+                entity.Property(e => e.Description)
+                    .HasColumnName("description");
+
+                entity.Property(e => e.Category)
+                    .HasColumnName("category");
+
+                entity.Property(e => e.Cost)
+                    .HasColumnName("cost");
+
+                entity.Property(e => e.Quantity)
+                    .HasColumnName("quantity");
+
+                entity.Property(e => e.Source)
+                    .HasColumnName("source");
+            });
         }
     }
 }
