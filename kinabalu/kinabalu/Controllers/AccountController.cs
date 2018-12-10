@@ -197,6 +197,24 @@ namespace IdentityDemo.Controllers
             return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
+        private IActionResult RedirectToLocal(string returnUrl)
+        {
+            if (Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+            else
+            {
+                return RedirectToAction(nameof(HomeController.Index), "Home");
+            }
+        }
+
+        [HttpGet]
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
+
         //[HttpPost]
         //[AllowAnonymous]
         //[ValidateAntiForgeryToken]
@@ -377,13 +395,6 @@ namespace IdentityDemo.Controllers
         //    return View();
         //}
 
-
-        //[HttpGet]
-        //public IActionResult AccessDenied()
-        //{
-        //    return View();
-        //}
-
         //#region Helpers
 
         //private void AddErrors(IdentityResult result)
@@ -393,23 +404,6 @@ namespace IdentityDemo.Controllers
         //        ModelState.AddModelError(string.Empty, error.Description);
         //    }
         //}
-
-        private IActionResult RedirectToLocal(string returnUrl)
-        {
-            if (Url.IsLocalUrl(returnUrl))
-            {
-                return Redirect(returnUrl);
-            }
-            else
-            {
-                return RedirectToAction(nameof(HomeController.Index), "Home");
-            }
-        }
-
-        public string GetLoggedInUser(HttpRequest request)
-        {
-            return "test";
-        }
 
         //#endregion
     }
