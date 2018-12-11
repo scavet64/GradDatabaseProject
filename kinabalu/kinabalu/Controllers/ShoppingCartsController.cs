@@ -6,22 +6,66 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Kinabalu.Models;
+using Kinabalu.Services;
 
 namespace Kinabalu.Controllers
 {
     public class ShoppingCartsController : Controller
     {
         private readonly grad_dbContext _context;
+        private readonly IAuthenticationService _authenticationService;
 
-        public ShoppingCartsController(grad_dbContext context)
+
+        public ShoppingCartsController(grad_dbContext context, IAuthenticationService authenticationService)
         {
             _context = context;
+            _authenticationService = authenticationService;
         }
 
         // GET: ShoppingCarts
         public async Task<IActionResult> Index()
         {
-            return View(await _context.ShoppingCart.ToListAsync());
+            var temp = (from s in _context.ShoppingCart
+                       join pv in _context.ProductsView on new {A = s.ProductId, B = s.ProductSource} equals new {A = pv.ProductId, B = pv.Source }
+                       select new ShoppingCartProductViewModel{ ShoppingCart = s, ProductName = pv.Name});
+
+            return View(temp.ToList());
+        }
+
+        public async Task<IActionResult> PlaceOrder()
+        {
+            var customerUser = _authenticationService.GetCurrentlyLoggedInUser(Request);
+
+            var shoppingCart = (from s in _context.ShoppingCart
+                where s.CustomerId == customerUser.User.CustomerId && s.CustomerSource == customerUser.User.CustomerSource
+                select s).ToList();
+
+            var order = new Order
+            {
+                CustomerId = customerUser.User.CustomerId,
+                CustomerSource = customerUser.User.CustomerSource
+            };
+
+            _context.Order.Add(order);
+
+            foreach (var item in shoppingCart)
+            {
+                var orderProduct = new OrderProduct
+                {
+                    OrderId = order.OrderId,
+                    ProductSource = item.ProductSource,
+                    ProductId = item.ProductId,
+                    Quantity = item.ProductQuantity
+                };
+
+                _context.OrderProduct.Add(orderProduct);
+            }
+
+            _context.ShoppingCart.RemoveRange(shoppingCart.ToArray());
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index");
         }
 
         // GET: ShoppingCarts/Details/5
