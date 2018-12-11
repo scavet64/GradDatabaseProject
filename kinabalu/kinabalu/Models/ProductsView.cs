@@ -12,7 +12,7 @@ namespace Kinabalu.Models
         public string Description { get; set; }
         public string Category { get; set; }
         public double Cost { get; set; }
-        public int Quantity { get; set; }
+        public int? Quantity { get; set; }
         public string Source { get; set; }
         public double? AverageRating { get; set; }
         public double? AverageReceivedRating { get; set; }
