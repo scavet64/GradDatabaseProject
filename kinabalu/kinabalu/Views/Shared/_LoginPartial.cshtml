@@ -5,12 +5,13 @@
 @using Microsoft.AspNetCore.Http
 @inject IAuthenticationService AuthenticationService;
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor;
-@if (!string.IsNullOrWhiteSpace(@AuthenticationService.GetCurrentlyLoggedInUser(HttpContextAccessor.HttpContext.Request)))
+@{ var customerUser = AuthenticationService.GetCurrentlyLoggedInUser(HttpContextAccessor.HttpContext.Request);}
+@if (!string.IsNullOrWhiteSpace(customerUser?.Customer.EmailAddress))
 {
     <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" id="logoutForm" class="navbar-right">
         <ul class="nav navbar-nav navbar-right">
             <li>
-                <a asp-area="" asp-controller="Manage" asp-action="Index" title="Manage">Hello @AuthenticationService.GetCurrentlyLoggedInUser(HttpContextAccessor.HttpContext.Request)!</a>
+                <a asp-area="" asp-controller="Manage" asp-action="Index" title="Manage">Hello @customerUser.Customer.EmailAddress!</a>
             </li>
             <li>
                 <a asp-area="" asp-controller="ShoppingCarts" asp-action="Index" title="Manage">Shopping Cart</a>

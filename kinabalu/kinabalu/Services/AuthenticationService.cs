@@ -34,22 +34,19 @@ namespace Kinabalu.Services
             return false;
         }
 
-        public string GetCurrentlyLoggedInUser(HttpRequest request)
+        public UserCustomerViewModel GetCurrentlyLoggedInUser(HttpRequest request)
         {
             if (int.TryParse(getCookieValue(request), out int result))
             {
-                var user = (from u in _context.User
-                    join r in _context.Customer
-                        on u.CustomerId equals r.CustomerId
+                var customerUser = (from u in _context.User
+                    join c in _context.Customer
+                        on u.CustomerId equals c.CustomerId
                     where (u.UserId == result)
-                    select new
-                    {
-                        Email = r.EmailAddress,
-                    }).ToList().FirstOrDefault();
+                    select new {u, c}).ToList().FirstOrDefault();
 
-                if (user != null)
+                if (customerUser != null)
                 {
-                    return user.Email;
+                    return new UserCustomerViewModel {Customer = customerUser.c, User = customerUser.u};
                 }
             }
 
