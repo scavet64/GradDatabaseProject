@@ -14,18 +14,18 @@ namespace Kinabalu.Controllers
     public class CustomersController : Controller
     {
         private readonly grad_dbContext _context;
-        private readonly IAuthenticationService authenticationService;
+        private readonly IAuthenticationService _authenticationService;
 
         public CustomersController(grad_dbContext context, IAuthenticationService authenticationService)
         {
             _context = context;
-            this.authenticationService = authenticationService;
+            _authenticationService = authenticationService;
         }
 
         // GET: Customers
         public async Task<IActionResult> Index()
         {
-            if (authenticationService.isAuthenticated(Request, Response))
+            if (_authenticationService.isAuthenticated(Request, Response))
             {
                 return View(await _context.Customer.ToListAsync());
             }
