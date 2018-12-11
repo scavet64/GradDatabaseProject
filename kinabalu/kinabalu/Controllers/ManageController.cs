@@ -9,15 +9,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using IdentityDemo.Models;
-using IdentityDemo.Models.ManageViewModels;
-using IdentityDemo.Services;
 using Kinabalu.Models;
+using Kinabalu.Models.ManageViewModels;
 using Kinabalu.Services;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 
-namespace IdentityDemo.Controllers
+namespace Kinabalu.Controllers
 {
     [Route("[controller]/[action]")]
     public class ManageController : Controller

@@ -1,7 +1,4 @@
-﻿using IdentityDemo.Models;
-using IdentityDemo.Models.AccountViewModels;
-using IdentityDemo.Services;
-using Kinabalu;
+﻿using Kinabalu;
 using Kinabalu.Controllers;
 using Kinabalu.Models;
 using Kinabalu.Services;
@@ -18,8 +15,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Kinabalu.Models.AccountViewModels;
 
-namespace IdentityDemo.Controllers
+namespace Kinabalu.Controllers
 {
     [Route("[controller]/[action]")]
     public class AccountController : Controller

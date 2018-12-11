@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using IdentityDemo.Services;
 using Kinabalu.DAL;
 using Kinabalu.Models;
 using Kinabalu.Services;

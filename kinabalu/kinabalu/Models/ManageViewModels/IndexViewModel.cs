@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Kinabalu.Models;
 
-namespace IdentityDemo.Models.ManageViewModels
+namespace Kinabalu.Models.ManageViewModels
 {
     public class IndexViewModel
     {

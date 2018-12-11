@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using IdentityDemo.Controllers;
+using Kinabalu.Controllers;
 using Kinabalu.Models;
 using Kinabalu.Services;
 using Microsoft.AspNetCore.Http;
