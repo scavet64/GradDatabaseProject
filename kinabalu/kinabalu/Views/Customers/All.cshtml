@@ -49,7 +49,7 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Source)
             </td>
-            @if (item.Source == "kinabalu")
+            @if (item.Source.Equals(KinabaluConstants.KinabaluSource, StringComparison.CurrentCultureIgnoreCase))
             {
                 <td>
 
