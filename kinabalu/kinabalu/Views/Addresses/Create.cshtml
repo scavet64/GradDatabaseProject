@@ -1,4 +1,4 @@
-﻿@model Kinabalu.Models.Address
+﻿@model Kinabalu.Models.AddressViewModels.CreateAddressViewModel;
 
 @{
     ViewData["Title"] = "Create";
@@ -37,6 +37,11 @@
                 <label asp-for="House" class="control-label"></label>
                 <input asp-for="House" class="form-control" />
                 <span asp-validation-for="House" class="text-danger"></span>
+            </div>
+            <div class="hidden">
+                <label asp-for="ReturnUrl" class="control-label"></label>
+                <input asp-for="ReturnUrl" class="form-control" value="@ViewData["ReturnUrl"]"/>
+                <span asp-validation-for="ReturnUrl" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-default" />

@@ -2,25 +2,31 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using IdentityDemo.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Kinabalu.Models;
+using Kinabalu.Models.AddressViewModels;
+using Kinabalu.Services;
 
 namespace Kinabalu.Controllers
 {
     public class AddressesController : Controller
     {
         private readonly grad_dbContext _context;
+        private readonly IAuthenticationService _authenticationService;
 
-        public AddressesController(grad_dbContext context)
+        public AddressesController(grad_dbContext context, IAuthenticationService authenticationService)
         {
             _context = context;
+            _authenticationService = authenticationService;
         }
 
         // GET: Addresses
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string returnurl = null)
         {
+            ViewData["ReturnUrl"] = returnurl;
             return View(await _context.Address.ToListAsync());
         }
 
@@ -43,8 +49,9 @@ namespace Kinabalu.Controllers
         }
 
         // GET: Addresses/Create
-        public IActionResult Create()
+        public IActionResult Create(string returnurl = null)
         {
+            ViewData["ReturnUrl"] = returnurl;
             return View();
         }
 
@@ -53,13 +60,35 @@ namespace Kinabalu.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("AddressId,State,Zip,City,Street,House,LastUpdate")] Address address)
+        public async Task<IActionResult> Create([Bind("AddressId,State,Zip,City,Street,House,LastUpdate")] Address address, [Bind("ReturnUrl")] string returnUrl = null)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(address);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                var temp = _authenticationService.GetCurrentlyLoggedInUser(Request);
+                if (temp == null)
+                {
+                    throw new ApplicationException($"Unable to load user with ID");
+                }
+
+                using (var contextTransaction = _context.Database.BeginTransaction())
+                {
+                    _context.Add(address);
+                    await _context.SaveChangesAsync();
+
+                    var customer = _context.Customer.FindAsync(temp.Customer.CustomerId);
+                    customer.Result.CustomerAddress.Add(new CustomerAddress()
+                    {
+                        Address = address
+                    });
+                    await _context.SaveChangesAsync();
+                    contextTransaction.Commit();
+                }
+
+                if (!string.IsNullOrWhiteSpace(returnUrl))
+                {
+                    return Redirect(returnUrl);
+                }
+
             }
             return View(address);
         }
