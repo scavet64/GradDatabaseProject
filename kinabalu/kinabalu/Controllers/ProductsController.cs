@@ -6,16 +6,57 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Kinabalu.Models;
+using Kinabalu.Services;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Kinabalu.Controllers
 {
     public class ProductsController : Controller
     {
         private readonly grad_dbContext _context;
+        private readonly IAuthenticationService _authenticationService;
 
-        public ProductsController(grad_dbContext context)
+        public ProductsController(grad_dbContext context, IAuthenticationService authenticationService)
         {
             _context = context;
+            _authenticationService = authenticationService;
+        }
+
+        public async Task<IActionResult> AddToShoppingCart(int? productId, string productSource)
+        {
+            if (productId == null || productSource == null)
+            {
+                return NotFound();
+            }
+
+            var customerUser = _authenticationService.GetCurrentlyLoggedInUser(Request);
+
+            var shoppingCartEntry = (from sc in _context.ShoppingCart
+                where (sc.CustomerId.Equals(customerUser.User.CustomerId) && sc.CustomerSource.Equals(customerUser.User.CustomerSource) && 
+                       sc.ProductId.Equals(productId) && sc.ProductSource.Equals(productSource))
+                select sc).ToList().FirstOrDefault();
+
+            if (shoppingCartEntry != null)
+            {
+                shoppingCartEntry.ProductQuantity++;
+            }
+            else
+            {
+                var shoppingCart = new ShoppingCart
+                {
+                    CustomerId = customerUser.User.CustomerId,
+                    CustomerSource = customerUser.User.CustomerSource,
+                    ProductId = productId.Value,
+                    ProductSource = productSource,
+                    ProductQuantity = 1
+                };
+
+                _context.Add(shoppingCart);
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Products
