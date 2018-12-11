@@ -1,4 +1,5 @@
 using System;
+using Kinabalu.Models.Views;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -32,6 +33,11 @@ namespace Kinabalu.Models
         public virtual DbSet<BelowMinimumStockView> BelowMinimumStockView { get; set; }
         public virtual DbSet<CustomerView> CustomerView { get; set; }
         public virtual DbSet<ProductsView> ProductsView { get; set; }
+        public virtual DbSet<InactiveUserView> InactiveUserView { get; set; }
+        public virtual DbSet<MostWishedForByCategory> MostWishedForByCategory { get; set; }
+        public virtual DbSet<ProductLowSalesView> ProductLowSalesView { get; set; }
+        public virtual DbSet<ProductShipmentView> ProductShipmentView { get; set; }
+        public virtual DbSet<UnpurchasedWishedForItemsView> UnpurchasedWishedForItemsView { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -634,6 +640,123 @@ namespace Kinabalu.Models
 
                 entity.Property(e => e.AverageReceivedRating)
                     .HasColumnName("average_received_rating");
+            });
+
+            modelBuilder.Entity<InactiveUserView>(entity =>
+            {
+                entity.HasKey(e => e.CustomerId);
+
+                entity.ToTable("inactive_user_view");
+
+                entity.Property(e => e.CustomerId)
+                    .HasColumnName("customer_id");
+
+                entity.Property(e => e.FirstName)
+                    .HasColumnName("first_name");
+
+                entity.Property(e => e.LastName)
+                    .HasColumnName("last_name");
+
+                entity.Property(e => e.EmailAddress)
+                    .HasColumnName("email_address");
+
+                entity.Property(e => e.LastLogin)
+                    .HasColumnName("last_login");
+
+                entity.Property(e => e.DaysInactive)
+                    .HasColumnName("days_inactive");
+            });
+
+            modelBuilder.Entity<MostWishedForByCategory>(entity =>
+            {
+                entity.HasKey(e => e.ProductId);
+
+                entity.ToTable("most_wished_for_by_category_view");
+
+                entity.Property(e => e.ProductId)
+                    .HasColumnName("product_id");
+
+                entity.Property(e => e.Name)
+                    .HasColumnName("name");
+
+                entity.Property(e => e.Source)
+                    .HasColumnName("source");
+
+                entity.Property(e => e.Category)
+                    .HasColumnName("category");
+
+                entity.Property(e => e.Wishes)
+                    .HasColumnName("wishes");
+            });
+
+            modelBuilder.Entity<ProductLowSalesView>(entity =>
+            {
+                entity.HasKey(e => e.Name);
+
+                entity.ToTable("product_low_sales_view");
+
+                entity.Property(e => e.Name)
+                    .HasColumnName("name");
+
+                entity.Property(e => e.Source)
+                    .HasColumnName("product_source");
+
+                entity.Property(e => e.Category)
+                    .HasColumnName("category");
+
+                entity.Property(e => e.Cost)
+                    .HasColumnName("cost");
+
+                entity.Property(e => e.Sales)
+                    .HasColumnName("sales");
+            });
+
+            modelBuilder.Entity<ProductShipmentView>(entity =>
+            {
+                entity.HasKey(e => e.Customer);
+
+                entity.ToTable("product_shipment_view");
+
+                entity.Property(e => e.Customer)
+                    .HasColumnName("customer");
+
+                entity.Property(e => e.Product)
+                    .HasColumnName("product");
+
+                entity.Property(e => e.ShipmentDate)
+                    .HasColumnName("shipment_date");
+            });
+
+            modelBuilder.Entity<ReceivedProductsView>(entity =>
+            {
+                entity.HasKey(e => e.CustomerId);
+
+                entity.ToTable("received_products_view");
+
+                entity.Property(e => e.CustomerId)
+                    .HasColumnName("customer_id");
+
+                entity.Property(e => e.CustomerSource)
+                    .HasColumnName("customer_source");
+
+                entity.Property(e => e.ProductId)
+                    .HasColumnName("product_id");
+
+                entity.Property(e => e.ProductSource)
+                    .HasColumnName("product_source");
+            });
+
+            modelBuilder.Entity<UnpurchasedWishedForItemsView>(entity =>
+            {
+                entity.HasKey(e => e.Product);
+
+                entity.ToTable("unpurchased_wished_for_items_view");
+
+                entity.Property(e => e.Product)
+                    .HasColumnName("product");
+
+                entity.Property(e => e.Customer)
+                    .HasColumnName("customer");
             });
         }
     }
