@@ -42,11 +42,11 @@ namespace Kinabalu.Services
                     join c in _context.Customer
                         on u.CustomerId equals c.CustomerId
                     where (u.UserId == result)
-                    select new {u, c}).ToList().FirstOrDefault();
+                    select new UserCustomerViewModel { Customer = c, User = u }).ToList().FirstOrDefault();
 
                 if (customerUser != null)
                 {
-                    return new UserCustomerViewModel {Customer = customerUser.c, User = customerUser.u};
+                    return customerUser;
                 }
             }
 
