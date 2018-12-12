@@ -30,7 +30,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">kinabalu</a>
+                <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">Kinabalu</a>
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
@@ -39,7 +39,7 @@
                         <ul class="dropdown-menu">
                             <li><a asp-area="" asp-controller="Products" asp-action="Index">All Products</a></li>
                             @foreach (var category in DbContext.ProductsView.Select(p => p.Category).Distinct())
-                            { 
+                            {
                                 <li><a asp-area="" asp-controller="Products" asp-action="Index" asp-route-category="@category">@category</a></li>
                             }
                         </ul>
@@ -50,6 +50,7 @@
                         <li><a asp-area="" asp-controller="Categories" asp-action="Index">Categories</a></li>
                         <li><a asp-area="" asp-controller="Suppliers" asp-action="Index">Suppliers</a></li>
                         <li><a asp-area="" asp-controller="Reports" asp-action="Index">Reports</a></li>
+                        <li><a asp-area="" asp-controller="Restocks" asp-action="Index">Restocking</a></li>
                     }
                 </ul>
                 @await Html.PartialAsync("_LoginPartial")
