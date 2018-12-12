@@ -547,7 +547,8 @@ CREATE VIEW `product_low_sales_view` AS
                     (`order`.`order_date` > (NOW() - INTERVAL 90 DAY)))
         GROUP BY CONCAT(`o`.`product_id`, `o`.`product_source`)
         ORDER BY SUM(`o`.`quantity`)
-        LIMIT 20) `l` ON ((CONCAT(`p`.`product_id`, `p`.`source`) = `l`.`key`)));
+        LIMIT 20) `l` ON ((CONCAT(`p`.`product_id`, `p`.`source`) = `l`.`key`)))
+        ORDER BY `sales`;
 
 DROP VIEW IF EXISTS `product_shipment_view`;
 CREATE VIEW `product_shipment_view` AS
@@ -627,14 +628,13 @@ INSERT INTO `address` (`state`, `zip`, `city`, `street`, `house`) VALUES ('NJ', 
 INSERT INTO `customer` (`first_name`, `last_name`, `email_address`) VALUES ('bob', 'dole', 'bob@gmail.com');
 INSERT INTO `customer` (`first_name`, `last_name`, `email_address`) VALUES ('jim', 'jam', 'jim@gmail.com');
 INSERT INTO `customer` (`first_name`, `last_name`, `email_address`) VALUES ('jill', 'jack', 'jill@gmail.com');
-
 INSERT INTO `customer` (`first_name`, `last_name`, `email_address`) VALUES ('Cool', 'Admin', 'admin@admin.com');
-INSERT INTO `user` (`password`, `role_id`, `customer_id`, `customer_source`) VALUES ('test', 1, 4, 'kinabalu');
 
 INSERT INTO `customer_address` (`customer_id`, `address_id`, `name`) VALUES (1, 1, 'Home');
 INSERT INTO `customer_address` (`customer_id`, `address_id`, `name`) VALUES (1, 2, 'Second Home');
 INSERT INTO `customer_address` (`customer_id`, `address_id`, `name`) VALUES (2, 2, 'Home');
 INSERT INTO `customer_address` (`customer_id`, `address_id`, `name`) VALUES (3, 3, 'Home');
+INSERT INTO `customer_address` (`customer_id`, `address_id`, `name`) VALUES (4, 3, 'Home');
 
 INSERT INTO `supplier` (`name`, `address_id`) VALUES ('CoolThings', '1');
 INSERT INTO `supplier` (`name`, `address_id`) VALUES ('BestStuff', '2');
