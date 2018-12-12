@@ -47,7 +47,12 @@
             <th>
                 @Html.DisplayNameFor(model => model.AverageReceivedRating)
             </th>
-            <th></th>
+            <th>
+                Buy
+            </th>
+            <th>
+                Rate Product
+            </th>
         </tr>
     </thead>
     <tbody>
@@ -90,9 +95,24 @@
                 else
                 {
                     <td>
-                        <a class="btn btn-primary" asp-action="AddToShoppingCart" asp-route-productId="@item.ProductId" asp-route-productSource="@item.Source">Add to Shopping Cart</a>
+                        <a class="btn btn-primary" asp-action="AddToShoppingCart" asp-route-productId="@item.ProductId" asp-route-productSource="@item.Source"><span class="glyphicon glyphicon-shopping-cart"></span></a>
                     </td>
                 }
+                <td>
+                    <div class="dropdown">
+                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            Rating
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                            <li><a asp-controller="Ratings" asp-action="Rate" asp-route-prodId="@item.ProductId" asp-route-source="@item.Source" asp-route-rating="1">1</a></li>
+                            <li><a asp-controller="Ratings" asp-action="Rate" asp-route-prodId="@item.ProductId" asp-route-source="@item.Source" asp-route-rating="2">2</a></li>
+                            <li><a asp-controller="Ratings" asp-action="Rate" asp-route-prodId="@item.ProductId" asp-route-source="@item.Source" asp-route-rating="3">3</a></li>
+                            <li><a asp-controller="Ratings" asp-action="Rate" asp-route-prodId="@item.ProductId" asp-route-source="@item.Source" asp-route-rating="4">4</a></li>
+                            <li><a asp-controller="Ratings" asp-action="Rate" asp-route-prodId="@item.ProductId" asp-route-source="@item.Source" asp-route-rating="5">5</a></li>
+                        </ul>
+                    </div>
+                </td>
             </tr>
         }
     </tbody>
