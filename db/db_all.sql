@@ -167,7 +167,7 @@ CREATE TRIGGER restock_check AFTER UPDATE ON product
        BEGIN
            IF NEW.quantity < NEW.reorder_level THEN
                 IF (SELECT count(*) FROM restock r WHERE r.product_id = NEW.product_id AND r.fulfilled = 0) = 0 THEN
-                    INSERT into restock (`product_id`, `quantity`) VALUES (NEW.product_id, NEW.quantity + (NEW.reorder_level - NEW.quantity) + 10);
+                    INSERT into restock (`product_id`, `quantity`) VALUES (NEW.product_id, (NEW.reorder_level - NEW.quantity) + 10);
                 END IF;
            END IF;
        END;//
@@ -617,8 +617,12 @@ INSERT INTO `category` (`name`) VALUES ('Cool');
 INSERT INTO `product` (`name`, `description`, `supplier_id`, `category_id`, `cost`, `reorder_level`, `weight_unit_of_measure`, `weight`, `quantity`) VALUES ('test', 'test', '1', '1', '23', '10', 'oz', '5', '11');
 INSERT INTO `product` (`name`, `description`, `supplier_id`, `category_id`, `cost`, `reorder_level`, `weight_unit_of_measure`, `weight`, `quantity`) VALUES ('Fun thing', 'Its fun!', '2', '2', '15', '10', 'oz', '5', '12');
 INSERT INTO `product` (`name`, `description`, `supplier_id`, `category_id`, `cost`, `reorder_level`, `weight_unit_of_measure`, `weight`, `quantity`) VALUES ('Really Fun Product', 'its really fun!', '1', '3', '10', '10', 'oz', '15', '11');
-INSERT INTO `product` (`name`, `description`, `supplier_id`, `category_id`, `cost`, `reorder_level`, `weight_unit_of_measure`, `weight`, `quantity`) VALUES ('Product Running Low', 'We better get more!', '2', '2', '5', '10', 'oz', '15', '5');
-INSERT INTO `product` (`name`, `description`, `supplier_id`, `category_id`, `cost`, `reorder_level`, `weight_unit_of_measure`, `weight`, `quantity`) VALUES ('Product Almost Gone', 'We better get even more!', '1', '1', '5', '10', 'oz', '15', '2');
+INSERT INTO `product` (`name`, `description`, `supplier_id`, `category_id`, `cost`, `reorder_level`, `weight_unit_of_measure`, `weight`, `quantity`) VALUES ('Restocked Product', 'We got more!', '2', '2', '5', '10', 'oz', '15', '12');
+INSERT INTO `product` (`name`, `description`, `supplier_id`, `category_id`, `cost`, `reorder_level`, `weight_unit_of_measure`, `weight`, `quantity`) VALUES ('Product Almost Gone', 'We better get even more!', '1', '1', '5', '10', 'oz', '15', '12');
+
+UPDATE `product` SET `quantity` = 5 WHERE `product_id` = 4;
+UPDATE `product` SET `quantity` = 2 WHERE `product_id` = 5;
+UPDATE `restock` SET `fulfilled` = TRUE WHERE `product_id` = 4;
 
 INSERT INTO `order` (`customer_id`, `customer_source`, `delivery_date`) VALUES ('1', 'kinabalu', NOW() + INTERVAL 15 DAY);
 INSERT INTO `order` (`customer_id`, `customer_source`, `delivery_date`) VALUES ('2', 'kinabalu', NOW() + INTERVAL 15 DAY);
