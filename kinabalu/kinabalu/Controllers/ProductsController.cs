@@ -9,6 +9,7 @@ using Kinabalu.Models;
 using Kinabalu.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using X.PagedList;
 
 namespace Kinabalu.Controllers
 {
@@ -60,8 +61,30 @@ namespace Kinabalu.Controllers
         }
 
         // GET: Products
-        public async Task<IActionResult> Index(string category = null)
+        public async Task<IActionResult> Index(string sortOrder, string currentFilter, string searchString, int? page, string category = null)
         {
+            ViewBag.CurrentSort = sortOrder;
+            ViewBag.CurrentCategory = category;
+
+            ViewBag.NameSortParm = sortOrder == "Name" ? "name_desc" : "Name";
+            ViewBag.CategorySortParm = sortOrder == "Category" ? "Category_desc" : "Category";
+            ViewBag.CostSortParm = sortOrder == "Cost" ? "cost_desc" : "Cost";
+            ViewBag.QuantitySortParm = sortOrder == "Quantity" ? "Quantity_desc" : "Quantity";
+            ViewBag.SourceSortParm = sortOrder == "Source" ? "Source_desc" : "Source";
+            ViewBag.AverageRatingSortParm = sortOrder == "Average Rating" ? "Average_Rating_desc" : "Average Rating";
+            ViewBag.AverageRecievedRatingSortParm = sortOrder == "Average Received Rating" ? "Average_Received_Rating_desc" : "Average Received Rating";
+
+            if (searchString != null)
+            {
+                page = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+
+            ViewBag.CurrentFilter = searchString;
+
             IQueryable<ProductsView> temp;
             if (category == null)
             {
@@ -74,7 +97,64 @@ namespace Kinabalu.Controllers
                     select p;
             }
 
-            return View(temp.ToList());
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                temp = temp.Where(s => s.Name.Contains(searchString) || s.Description.Contains(searchString));
+            }
+
+            switch (sortOrder)
+            {
+                case "name_desc":
+                    temp = temp.OrderByDescending(s => s.Name);
+                    break;
+                case "name":
+                    temp = temp.OrderBy(s => s.Name);
+                    break;
+                case "Category_desc":
+                    temp = temp.OrderByDescending(s => s.Category);
+                    break;
+                case "Category":
+                    temp = temp.OrderBy(s => s.Category);
+                    break;
+                case "cost_desc":
+                    temp = temp.OrderByDescending(s => s.Cost);
+                    break;
+                case "Cost":
+                    temp = temp.OrderBy(s => s.Cost);
+                    break;
+                case "Quantity_desc":
+                    temp = temp.OrderByDescending(s => s.Quantity);
+                    break;
+                case "Quantity":
+                    temp = temp.OrderBy(s => s.Quantity);
+                    break;
+                case "Source_desc":
+                    temp = temp.OrderByDescending(s => s.Source);
+                    break;
+                case "Source":
+                    temp = temp.OrderBy(s => s.Source);
+                    break;
+                case "Average_Received_Rating_desc":
+                    temp = temp.OrderByDescending(s => s.AverageReceivedRating);
+                    break;
+                case "Average Rating":
+                    temp = temp.OrderBy(s => s.AverageReceivedRating);
+                    break;
+                case "Average_Rating_desc":
+                    temp = temp.OrderByDescending(s => s.AverageRating);
+                    break;
+                case "Average Received Rating":
+                    temp = temp.OrderBy(s => s.AverageRating);
+                    break;
+                default:
+                    temp = temp.OrderBy(s => s.Name);
+                    break;
+            }
+
+            int pageSize = 20;
+            int pageNumber = (page ?? 1);
+
+            return View(temp.ToPagedList(pageNumber, pageSize));
         }
 
         public async Task<IActionResult> IndexCategory(string category)

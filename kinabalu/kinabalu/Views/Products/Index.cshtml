@@ -1,7 +1,10 @@
 ﻿@using Kinabalu.Services
 @inject IAuthenticationService AuthenticationService;
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor;
-@model IEnumerable<Kinabalu.Models.ProductsView>
+@model X.PagedList.IPagedList<Kinabalu.Models.ProductsView>
+@using X.PagedList.Mvc;
+@using X.PagedList.Mvc.Core
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
 
 @{
     ViewData["Title"] = "View";
@@ -20,32 +23,40 @@
     </p>
 }
 
+@using (Html.BeginForm())
+{
+    <p>
+        Find by name or category: @Html.TextBox("SearchString")
+        <input type="submit" value="Search" />
+    </p>
+}
+
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Name)
+                @Html.ActionLink("Name", "Index", new { sortOrder = ViewBag.NameSortParm, currentFilter = ViewBag.CurrentFilter, category = ViewBag.CurrentCategory })
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Description)
+                @Html.DisplayNameFor(model => model.First().Description)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Category)
+                @Html.ActionLink("Category", "Index", new { sortOrder = ViewBag.CategorySortParm, currentFilter = ViewBag.CurrentFilter, category = ViewBag.CurrentCategory })
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Cost)
+                @Html.ActionLink("Cost", "Index", new { sortOrder = ViewBag.CostSortParm, currentFilter = ViewBag.CurrentFilter, category = ViewBag.CurrentCategory })
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Quantity)
+                @Html.ActionLink("Quantity", "Index", new { sortOrder = ViewBag.QuantitySortParm, currentFilter = ViewBag.CurrentFilter, category = ViewBag.CurrentCategory })
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Source)
+                @Html.ActionLink("Source", "Index", new { sortOrder = ViewBag.SourceSortParm, currentFilter = ViewBag.CurrentFilter, category = ViewBag.CurrentCategory })
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.AverageRating)
+                @Html.ActionLink("Average Rating", "Index", new { sortOrder = ViewBag.AverageRatingSortParm, currentFilter = ViewBag.CurrentFilter, category = ViewBag.CurrentCategory })
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.AverageReceivedRating)
+                @Html.ActionLink("Average Received Rating", "Index", new { sortOrder = ViewBag.AverageRecievedRatingSortParm, currentFilter = ViewBag.CurrentFilter, category = ViewBag.CurrentCategory })
             </th>
             <th>
                 Buy
@@ -83,7 +94,7 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.AverageReceivedRating)
                 </td>
-                            
+
                 @if (AuthenticationService.isUserAdmin(HttpContextAccessor.HttpContext.Request))
                 {
                     <td>
@@ -117,3 +128,9 @@
         }
     </tbody>
 </table>
+<br />
+Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+
+@Html.PagedListPager(Model, page => Url.Action("Index",
+    new { page, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter, category = ViewBag.CurrentCategory }))
+
