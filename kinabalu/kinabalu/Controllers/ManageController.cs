@@ -40,17 +40,16 @@ namespace Kinabalu.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var temp = _authenticationService.GetCurrentlyLoggedInUser(Request);
-
-            if (temp == null)
+            var customerUser = _authenticationService.GetCurrentlyLoggedInUser(Request);
+            if (customerUser == null)
             {
-                throw new ApplicationException($"Unable to load user with ID");
+                return RedirectToAction(nameof(AccountController.Login), "Account");
             }
 
             var customer = _context.Customer
                 .Include(c => c.CustomerAddress)
                     .ThenInclude(ca => ca.Address)
-                .Where(c => c.CustomerId == temp.Customer.CustomerId).ToList().FirstOrDefault();
+                .Where(c => c.CustomerId == customerUser.Customer.CustomerId).ToList().FirstOrDefault();
             if (customer == null)
             {
                 throw new ApplicationException($"Unable to load user with ID");
@@ -71,6 +70,12 @@ namespace Kinabalu.Controllers
         // GET: Customers/Delete/5
         public async Task<IActionResult> RemoveAssociation(int? addressId)
         {
+            var customerUser = _authenticationService.GetCurrentlyLoggedInUser(Request);
+            if (customerUser == null)
+            {
+                return RedirectToAction(nameof(AccountController.Login), "Account");
+            }
+
             if (addressId == null)
             {
                 return NotFound();
@@ -92,18 +97,18 @@ namespace Kinabalu.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Index(IndexViewModel model)
         {
+            var customerUser = _authenticationService.GetCurrentlyLoggedInUser(Request);
+            if (customerUser == null)
+            {
+                return RedirectToAction(nameof(AccountController.Login), "Account");
+            }
+
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
 
-            var temp = _authenticationService.GetCurrentlyLoggedInUser(Request);
-            if (temp == null)
-            {
-                return RedirectToAction(nameof(AccountController.AccessDenied), "Account");
-            }
-
-            var userToUpdate = _context.Customer.Where(c => c.CustomerId == temp.Customer.CustomerId).ToList().FirstOrDefault();
+            var userToUpdate = _context.Customer.Where(c => c.CustomerId == customerUser.Customer.CustomerId).ToList().FirstOrDefault();
             if (userToUpdate == null)
             {
                 return RedirectToAction(nameof(AccountController.AccessDenied), "Account");
@@ -149,20 +154,20 @@ namespace Kinabalu.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
         {
+            var customerUser = _authenticationService.GetCurrentlyLoggedInUser(Request);
+            if (customerUser == null)
+            {
+                return RedirectToAction(nameof(AccountController.Login), "Account");
+            }
+
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
 
-            var temp = _authenticationService.GetCurrentlyLoggedInUser(Request);
-            if (temp == null)
-            {
-                throw new ApplicationException($"Unable to load user with ID");
-            }
-
             try
             {
-                User user = _context.User.Where(u => u.UserId == temp.User.UserId).ToList().FirstOrDefault();
+                User user = _context.User.Where(u => u.UserId == customerUser.User.UserId).ToList().FirstOrDefault();
 
                 if (user != null)
                 {

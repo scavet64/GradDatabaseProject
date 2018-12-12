@@ -35,6 +35,10 @@ namespace Kinabalu.Controllers
         public async Task<IActionResult> PlaceOrder()
         {
             var customerUser = _authenticationService.GetCurrentlyLoggedInUser(Request);
+            if (customerUser == null)
+            {
+                return RedirectToAction(nameof(AccountController.Login), "Account");
+            }
 
             var shoppingCart = (from s in _context.ShoppingCart
                 where s.CustomerId == customerUser.User.CustomerId && s.CustomerSource == customerUser.User.CustomerSource
@@ -68,55 +72,22 @@ namespace Kinabalu.Controllers
             return RedirectToAction("Index");
         }
 
-        // GET: ShoppingCarts/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var shoppingCart = await _context.ShoppingCart
-                .FirstOrDefaultAsync(m => m.CustomerId == id);
-            if (shoppingCart == null)
-            {
-                return NotFound();
-            }
-
-            return View(shoppingCart);
-        }
-
-        // GET: ShoppingCarts/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: ShoppingCarts/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CustomerId,CustomerSource,ProductId,ProductSource,ProductQuantity,LastUpdate")] ShoppingCart shoppingCart)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(shoppingCart);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(shoppingCart);
-        }
-
         // GET: ShoppingCarts/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int? prodId, string prodSource)
         {
-            if (id == null)
+            var customerUser = _authenticationService.GetCurrentlyLoggedInUser(Request);
+            if (customerUser == null)
+            {
+                return RedirectToAction(nameof(AccountController.Login), "Account");
+            }
+
+            if (prodId == null || string.IsNullOrWhiteSpace(prodSource))
             {
                 return NotFound();
             }
 
-            var shoppingCart = await _context.ShoppingCart.FindAsync(id);
+            var shoppingCart = await _context.ShoppingCart.FindAsync(customerUser.User.CustomerId,
+                customerUser.User.CustomerSource, prodId, prodSource);
             if (shoppingCart == null)
             {
                 return NotFound();
