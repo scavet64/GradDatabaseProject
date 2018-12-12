@@ -297,12 +297,13 @@ BEGIN
 			  `customer_id` != `customer_id_input`
 	)
 
-	SELECT `product_id`, `product_source`, SUM(`quantity`) AS `total_purchases` FROM `order_product`
+	SELECT `pv`.`product_id`, `pv`.`source`, `pv`.`name`, SUM(`op`.`quantity`) AS `total_purchases` FROM `order_product` `op`
+    JOIN `product_view` `pv` ON (`op`.`product_id` = `pv`.`product_id` AND `op`.`product_source` = `pv`.`source`)
 	WHERE `order_id` IN (SELECT `order_id` FROM `order`
 						 JOIN `customers_who_purchased_same_product` USING (`customer_id` , `customer_source`)) AND
-		  (`product_id`, `product_source`) NOT IN (SELECT * FROM `your_products`)
-	GROUP BY `product_id`, `product_source`
-	ORDER BY 3 DESC
+		  (`op`.`product_id`, `op`.`product_source`) NOT IN (SELECT * FROM `your_products`)
+	GROUP BY `op`.`product_id`, `op`.`product_source`
+	ORDER BY 2 DESC
 	LIMIT 10;
 END$$
 DELIMITER ;

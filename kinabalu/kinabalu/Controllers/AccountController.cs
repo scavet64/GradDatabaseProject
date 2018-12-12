@@ -81,7 +81,7 @@ namespace Kinabalu.Controllers
                               where (e.EmailAddress.Equals(model.Email) && ep.Password.Equals(model.Password))
                               select new
                               {
-                                  Id = ep.CustomerId,
+                                  Id = ep.UserId,
                                   email = e.EmailAddress,
                                   password = ep.Password
                               }).ToList().FirstOrDefault();
