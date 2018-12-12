@@ -44,6 +44,7 @@
                     @Html.DisplayFor(modelItem => item.ShoppingCart.LastUpdate)
                 </td>
                 <td>
+                    <a asp-action="Edit" asp-route-prodId="@item.ShoppingCart.ProductId" asp-route-prodSource="@item.ShoppingCart.ProductSource">Edit</a> |
                     <a asp-action="Delete" asp-route-id="@item.ShoppingCart.ProductId" asp-route-source="@item.ShoppingCart.ProductSource">Remove</a>
                 </td>
             </tr>

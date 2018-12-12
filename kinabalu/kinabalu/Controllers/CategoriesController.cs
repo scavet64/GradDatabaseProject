@@ -6,27 +6,39 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Kinabalu.Models;
+using Kinabalu.Services;
 
 namespace Kinabalu.Controllers
 {
     public class CategoriesController : Controller
     {
         private readonly grad_dbContext _context;
+        private readonly IAuthenticationService _authenticationService;
 
-        public CategoriesController(grad_dbContext context)
+        public CategoriesController(grad_dbContext context, IAuthenticationService authenticationService)
         {
             _context = context;
+            _authenticationService = authenticationService;
         }
 
         // GET: Categories
         public async Task<IActionResult> Index()
         {
+            if (!_authenticationService.isUserAdmin(Request))
+            {
+                return RedirectToAction(nameof(AccountController.AccessDenied), "Account");
+            }
             return View(await _context.Category.ToListAsync());
         }
 
         // GET: Categories/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            if (!_authenticationService.isUserAdmin(Request))
+            {
+                return RedirectToAction(nameof(AccountController.AccessDenied), "Account");
+            }
+
             if (id == null)
             {
                 return NotFound();
@@ -45,6 +57,11 @@ namespace Kinabalu.Controllers
         // GET: Categories/Create
         public IActionResult Create()
         {
+            if (!_authenticationService.isUserAdmin(Request))
+            {
+                return RedirectToAction(nameof(AccountController.AccessDenied), "Account");
+            }
+
             return View();
         }
 
@@ -55,6 +72,11 @@ namespace Kinabalu.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("CategoryId,Name,LastUpdate")] Category category)
         {
+            if (!_authenticationService.isUserAdmin(Request))
+            {
+                return RedirectToAction(nameof(AccountController.AccessDenied), "Account");
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(category);
@@ -67,6 +89,11 @@ namespace Kinabalu.Controllers
         // GET: Categories/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            if (!_authenticationService.isUserAdmin(Request))
+            {
+                return RedirectToAction(nameof(AccountController.AccessDenied), "Account");
+            }
+
             if (id == null)
             {
                 return NotFound();
@@ -87,6 +114,11 @@ namespace Kinabalu.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("CategoryId,Name,LastUpdate")] Category category)
         {
+            if (!_authenticationService.isUserAdmin(Request))
+            {
+                return RedirectToAction(nameof(AccountController.AccessDenied), "Account");
+            }
+
             if (id != category.CategoryId)
             {
                 return NotFound();
@@ -118,6 +150,11 @@ namespace Kinabalu.Controllers
         // GET: Categories/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            if (!_authenticationService.isUserAdmin(Request))
+            {
+                return RedirectToAction(nameof(AccountController.AccessDenied), "Account");
+            }
+
             if (id == null)
             {
                 return NotFound();
@@ -138,6 +175,11 @@ namespace Kinabalu.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (!_authenticationService.isUserAdmin(Request))
+            {
+                return RedirectToAction(nameof(AccountController.AccessDenied), "Account");
+            }
+
             var category = await _context.Category.FindAsync(id);
             _context.Category.Remove(category);
             await _context.SaveChangesAsync();
