@@ -70,6 +70,7 @@
             @if (AuthenticationService.isUserAdmin(HttpContextAccessor.HttpContext.Request))
             {
                 <th></th>
+                <th></th>
             }
         </tr>
     </thead>
@@ -124,19 +125,17 @@
             </td>
             @if (AuthenticationService.isUserAdmin(HttpContextAccessor.HttpContext.Request))
             {
-                if (item.Source.Equals(KinabaluConstants.KinabaluSource, StringComparison.CurrentCultureIgnoreCase))
-                {
-                    <td>
-
-                        <a asp-action="Edit" asp-route-id="@item.ProductId">Edit</a> |
-                        <a asp-action="Details" asp-route-id="@item.ProductId">Details</a> |
-                        <a asp-action="Delete" asp-route-id="@item.ProductId">Delete</a>
-                    </td>
-                }
-                else
-                {
-                    <td></td>
-                }
+                <td>
+                    <a asp-action="OutlierRatings" asp-route-id="@item.ProductId" asp-route-source="@item.Source">Rating Outliers</a>
+                </td>
+                <td>
+                    @if (item.Source.Equals(KinabaluConstants.KinabaluSource, StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        <a asp-action="Edit" asp-route-id="@item.ProductId">Edit</a> <br />
+                        <a asp-action="Details" asp-route-id="@item.ProductId">Details</a> <br />
+                        <a asp-action="Delete" asp-route-id="@item.ProductId">Delete</a> <br />
+                    }
+                </td>
             }
         </tr>
         }
@@ -147,4 +146,3 @@ Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.Page
 
 @Html.PagedListPager(Model, page => Url.Action("Index",
     new { page, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter, category = ViewBag.CurrentCategory }))
-

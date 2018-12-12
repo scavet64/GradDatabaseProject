@@ -25,6 +25,16 @@ namespace Kinabalu.Controllers
             _authenticationService = authenticationService;
         }
 
+        public IActionResult OutlierRatings(int id, string source)
+        {
+            var result = _context.OutliersRatingsProcedure.FromSql(
+                new RawSqlString("call detect_outliers(@id, @source)"),
+                new MySqlParameter("@id", id),
+                new MySqlParameter("@source", source));
+
+            return View(result.ToList());
+        }
+
         public IActionResult SuggestedProduct()
         {
             var customerUser = _authenticationService.GetCurrentlyLoggedInUser(Request);

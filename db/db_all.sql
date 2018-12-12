@@ -264,9 +264,13 @@ BEGIN
     SET `lower_outlier` = (`q1_val` - (1.5 * `iqr`));
     SET `upper_outlier` = (`q3_val` + (1.5 * `iqr`));
     
-    SELECT customer_id, customer_source, rating, TRUE as 'outlier' FROM rating r WHERE r.product_id = product_id AND r.product_source = product_source AND (r.rating < `lower_outlier` OR r.rating > `upper_outlier`)
+    SELECT `r`.`customer_id`, `r`.`customer_source`, CONCAT(`cv`.`first_name`, ' ', `cv`.`last_name`) AS `name`, `rating`, TRUE AS `outlier` FROM `rating` `r` 
+    JOIN `customer_view` `cv` ON (`r`.`customer_id` = `cv`.`customer_id` AND `r`.`customer_source` = `cv`.`source`)
+    WHERE `r`.`product_id` = `product_id` AND `r`.`product_source` = `product_source` AND (`r`.`rating` < `lower_outlier` OR `r`.`rating` > `upper_outlier`)
     UNION
-    SELECT customer_id, customer_source, rating, FALSE as 'outlier' FROM rating r WHERE r.product_id = product_id AND r.product_source = product_source AND NOT (r.rating < `lower_outlier` OR r.rating > `upper_outlier`);
+	SELECT `r`.`customer_id`, `r`.`customer_source`, CONCAT(`cv`.`first_name`, ' ', `cv`.`last_name`) AS `name`, `rating`, FALSE AS `outlier` FROM `rating` `r` 
+    JOIN `customer_view` `cv` ON (`r`.`customer_id` = `cv`.`customer_id` AND `r`.`customer_source` = `cv`.`source`)
+    WHERE `r`.`product_id` = `product_id` AND `r`.`product_source` = `product_source` AND NOT (`r`.`rating` < `lower_outlier` OR `r`.`rating` > `upper_outlier`);
 END$$
 DELIMITER ;
 

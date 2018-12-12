@@ -51,7 +51,19 @@
                         <li><a asp-area="" asp-controller="Customers" asp-action="All">Customers</a></li>
                         <li><a asp-area="" asp-controller="Categories" asp-action="Index">Categories</a></li>
                         <li><a asp-area="" asp-controller="Suppliers" asp-action="Index">Suppliers</a></li>
-                        <li><a asp-area="" asp-controller="Reports" asp-action="Index">Reports</a></li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Reports <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a asp-area="" asp-controller="Reports" asp-action="Index">All Reports</a></li>
+                                <li><a asp-controller="Reports" asp-action="BelowMinStock">Products Below Minimum Stock</a></li>
+                                <li><a asp-controller="Reports" asp-action="InactiveUser">Inactive Users</a></li>
+                                <li><a asp-controller="Reports" asp-action="MostWishedForByCategory">Most Wished For By Category</a></li>
+                                <li><a asp-controller="Reports" asp-action="ProductLowSales">Products with low Sales</a></li>
+                                <li><a asp-controller="Reports" asp-action="ProductShipment">Product Shipment Dates</a></li>
+                                <li><a asp-controller="Reports" asp-action="UnpurchasedWishedForItems">Unpurchased Wished For Items</a></li>
+                            </ul>
+                        </li>
+
                         <li><a asp-area="" asp-controller="Restocks" asp-action="Index">Restocking</a></li>
                     }
                 </ul>
