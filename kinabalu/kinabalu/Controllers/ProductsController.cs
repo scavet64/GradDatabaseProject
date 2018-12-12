@@ -9,6 +9,7 @@ using Kinabalu.Models;
 using Kinabalu.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using MySql.Data.MySqlClient;
 
 namespace Kinabalu.Controllers
 {
@@ -21,6 +22,37 @@ namespace Kinabalu.Controllers
         {
             _context = context;
             _authenticationService = authenticationService;
+        }
+
+        public async Task<IActionResult> AddToWishlist(int? productId, string productSource)
+        {
+            if (productId == null || productSource == null)
+            {
+                return NotFound();
+            }
+
+            var customerUser = _authenticationService.GetCurrentlyLoggedInUser(Request);
+
+            var wishlist = new Wishlist
+            {
+                CustomerId = customerUser.User.CustomerId,
+                CustomerSource = customerUser.User.CustomerSource,
+                ProductId = productId.Value,
+                ProductSource = productSource,
+            };
+
+            _context.Add(wishlist);
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException e)
+            {
+                Console.WriteLine(e);
+            }
+
+            return RedirectToAction("Index", "Wishlists");
         }
 
         public async Task<IActionResult> AddToShoppingCart(int? productId, string productSource)

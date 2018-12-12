@@ -6,16 +6,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Kinabalu.Models;
+using Kinabalu.Services;
 
 namespace Kinabalu.Controllers
 {
     public class WishlistsController : Controller
     {
         private readonly grad_dbContext _context;
+        private readonly IAuthenticationService _authenticationService;
 
-        public WishlistsController(grad_dbContext context)
+        public WishlistsController(grad_dbContext context, IAuthenticationService authenticationService)
         {
             _context = context;
+            _authenticationService = authenticationService;
         }
 
         // GET: Wishlists
@@ -120,29 +123,25 @@ namespace Kinabalu.Controllers
         }
 
         // GET: Wishlists/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int? id, string source)
         {
-            if (id == null)
+            if (id == null || source == null)
             {
                 return NotFound();
             }
 
+            var customerUser = _authenticationService.GetCurrentlyLoggedInUser(Request);
+
             var wishlist = await _context.Wishlist
-                .FirstOrDefaultAsync(m => m.CustomerId == id);
+                .FirstOrDefaultAsync(m => m.ProductId == id && 
+                                          m.ProductSource.Equals(source) && 
+                                          m.CustomerId == customerUser.User.CustomerId &&
+                                          m.CustomerSource.Equals(customerUser.User.CustomerSource));
             if (wishlist == null)
             {
                 return NotFound();
             }
 
-            return View(wishlist);
-        }
-
-        // POST: Wishlists/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var wishlist = await _context.Wishlist.FindAsync(id);
             _context.Wishlist.Remove(wishlist);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));

@@ -51,42 +51,72 @@
                 Buy
             </th>
             <th>
+                Wishlist
+            </th>
+            <th>
                 Rate Product
             </th>
+            @if (AuthenticationService.isUserAdmin(HttpContextAccessor.HttpContext.Request))
+            {
+                <th></th>
+            }
         </tr>
     </thead>
     <tbody>
         @foreach (var item in Model)
         {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Description)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Category)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Cost)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Quantity)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Source)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.AverageRating)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.AverageReceivedRating)
-                </td>
-                            
-                @if (AuthenticationService.isUserAdmin(HttpContextAccessor.HttpContext.Request))
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Category)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Cost)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Quantity)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Source)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AverageRating)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AverageReceivedRating)
+            </td>
+            <td>
+                <a class="btn btn-primary" asp-action="AddToShoppingCart" asp-route-productId="@item.ProductId" asp-route-productSource="@item.Source"><span class="glyphicon glyphicon-shopping-cart"></span></a>
+            </td>
+            <td>
+                <a class="btn btn-primary" asp-action="AddToWishlist" asp-route-productId="@item.ProductId" asp-route-productSource="@item.Source"><span class="glyphicon glyphicon glyphicon-star"></span></a>
+            </td>
+            <td>
+                <div class="dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        Rating
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                        <li><a asp-controller="Ratings" asp-action="Rate" asp-route-prodId="@item.ProductId" asp-route-source="@item.Source" asp-route-rating="1">1</a></li>
+                        <li><a asp-controller="Ratings" asp-action="Rate" asp-route-prodId="@item.ProductId" asp-route-source="@item.Source" asp-route-rating="2">2</a></li>
+                        <li><a asp-controller="Ratings" asp-action="Rate" asp-route-prodId="@item.ProductId" asp-route-source="@item.Source" asp-route-rating="3">3</a></li>
+                        <li><a asp-controller="Ratings" asp-action="Rate" asp-route-prodId="@item.ProductId" asp-route-source="@item.Source" asp-route-rating="4">4</a></li>
+                        <li><a asp-controller="Ratings" asp-action="Rate" asp-route-prodId="@item.ProductId" asp-route-source="@item.Source" asp-route-rating="5">5</a></li>
+                    </ul>
+                </div>
+            </td>
+            @if (AuthenticationService.isUserAdmin(HttpContextAccessor.HttpContext.Request))
+            {
+                if (item.Source.Equals(KinabaluConstants.KinabaluSource, StringComparison.CurrentCultureIgnoreCase))
                 {
                     <td>
+
                         <a asp-action="Edit" asp-route-id="@item.ProductId">Edit</a> |
                         <a asp-action="Details" asp-route-id="@item.ProductId">Details</a> |
                         <a asp-action="Delete" asp-route-id="@item.ProductId">Delete</a>
@@ -94,26 +124,10 @@
                 }
                 else
                 {
-                    <td>
-                        <a class="btn btn-primary" asp-action="AddToShoppingCart" asp-route-productId="@item.ProductId" asp-route-productSource="@item.Source"><span class="glyphicon glyphicon-shopping-cart"></span></a>
-                    </td>
+                    <td></td>
                 }
-                <td>
-                    <div class="dropdown">
-                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                            Rating
-                            <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                            <li><a asp-controller="Ratings" asp-action="Rate" asp-route-prodId="@item.ProductId" asp-route-source="@item.Source" asp-route-rating="1">1</a></li>
-                            <li><a asp-controller="Ratings" asp-action="Rate" asp-route-prodId="@item.ProductId" asp-route-source="@item.Source" asp-route-rating="2">2</a></li>
-                            <li><a asp-controller="Ratings" asp-action="Rate" asp-route-prodId="@item.ProductId" asp-route-source="@item.Source" asp-route-rating="3">3</a></li>
-                            <li><a asp-controller="Ratings" asp-action="Rate" asp-route-prodId="@item.ProductId" asp-route-source="@item.Source" asp-route-rating="4">4</a></li>
-                            <li><a asp-controller="Ratings" asp-action="Rate" asp-route-prodId="@item.ProductId" asp-route-source="@item.Source" asp-route-rating="5">5</a></li>
-                        </ul>
-                    </div>
-                </td>
-            </tr>
+            }
+        </tr>
         }
     </tbody>
 </table>

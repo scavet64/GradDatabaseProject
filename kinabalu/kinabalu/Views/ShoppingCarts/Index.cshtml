@@ -44,9 +44,7 @@
                     @Html.DisplayFor(modelItem => item.ShoppingCart.LastUpdate)
                 </td>
                 <td>
-                    @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                    @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                    @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                    <a asp-action="Delete" asp-route-id="@item.ShoppingCart.ProductId" asp-route-source="@item.ShoppingCart.ProductSource">Remove</a>
                 </td>
             </tr>
         }
