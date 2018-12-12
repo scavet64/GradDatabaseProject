@@ -44,15 +44,16 @@
                     @Html.DisplayFor(modelItem => item.ShoppingCart.LastUpdate)
                 </td>
                 <td>
-                    @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                    @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                    @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                    <a asp-action="Delete" asp-route-id="@item.ShoppingCart.ProductId" asp-route-source="@item.ShoppingCart.ProductSource">Remove</a>
                 </td>
             </tr>
         }
     </tbody>
 </table>
 
-<p>
-    <a class="btn btn-primary" asp-action="PlaceOrder">Place Order</a>
-</p>
+@if (Model.Any())
+{
+    <p>
+        <a class="btn btn-primary" asp-action="PlaceOrder">Place Order</a>
+    </p>
+}

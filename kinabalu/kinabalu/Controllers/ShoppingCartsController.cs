@@ -160,29 +160,25 @@ namespace Kinabalu.Controllers
         }
 
         // GET: ShoppingCarts/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int? id, string source)
         {
-            if (id == null)
+            if (id == null || source == null)
             {
                 return NotFound();
             }
 
+            var customerUser = _authenticationService.GetCurrentlyLoggedInUser(Request);
+
             var shoppingCart = await _context.ShoppingCart
-                .FirstOrDefaultAsync(m => m.CustomerId == id);
+                .FirstOrDefaultAsync(s => s.ProductId == id &&
+                                          s.ProductSource.Equals(source) &&
+                                          s.CustomerId == customerUser.User.CustomerId &&
+                                          s.CustomerSource.Equals(customerUser.User.CustomerSource));
             if (shoppingCart == null)
             {
                 return NotFound();
             }
 
-            return View(shoppingCart);
-        }
-
-        // POST: ShoppingCarts/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var shoppingCart = await _context.ShoppingCart.FindAsync(id);
             _context.ShoppingCart.Remove(shoppingCart);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
