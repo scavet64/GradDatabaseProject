@@ -6,6 +6,9 @@ INSERT INTO `customer` (`first_name`, `last_name`, `email_address`) VALUES ('bob
 INSERT INTO `customer` (`first_name`, `last_name`, `email_address`) VALUES ('jim', 'jam', 'jim@gmail.com');
 INSERT INTO `customer` (`first_name`, `last_name`, `email_address`) VALUES ('jill', 'jack', 'jill@gmail.com');
 
+INSERT INTO `customer` (`first_name`, `last_name`, `email_address`) VALUES ('Cool', 'Admin', 'admin@admin.com');
+INSERT INTO `user` (`password`, `role_id`, `customer_id`, `customer_source`) VALUES ('test', 1, 4, 'kinabalu');
+
 INSERT INTO `customer_address` (`customer_id`, `address_id`, `name`) VALUES (1, 1, 'Home');
 INSERT INTO `customer_address` (`customer_id`, `address_id`, `name`) VALUES (1, 2, 'Second Home');
 INSERT INTO `customer_address` (`customer_id`, `address_id`, `name`) VALUES (2, 2, 'Home');

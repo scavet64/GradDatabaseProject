@@ -77,15 +77,6 @@ namespace Kinabalu.Controllers
             return View(temp.ToList());
         }
 
-        public async Task<IActionResult> IndexCategory(string category)
-        {
-            var temp = from p in _context.ProductsView
-                where p.Category.Equals(category)
-                select p;
-
-            return View(temp.ToList());
-        }
-
         // GET: Products
         public async Task<IActionResult> Local()
         {
