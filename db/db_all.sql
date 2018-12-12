@@ -493,83 +493,49 @@ CREATE VIEW `inactive_user_view` AS
 
 DROP VIEW IF EXISTS `most_wished_for_by_category_view`;
 CREATE VIEW `most_wished_for_by_category_view` AS
-    SELECT 
-        `t`.`product_id` AS `product_id`,
-        `t`.`name` AS `name`,
-        `t`.`source` AS `source`,
-        `t`.`category` AS `category`,
-        `t`.`wishes` AS `wishes`
-    FROM
-        (SELECT 
-            `p`.`product_id` AS `product_id`,
-                `p`.`name` AS `name`,
-                `p`.`source` AS `source`,
-                `p`.`category` AS `category`,
-                COUNT(0) AS `wishes`
-        FROM
-            (`wishlist` `w`
-        JOIN `product_view` `p` ON (((`w`.`product_id` = `p`.`product_id`)
-            AND (`w`.`product_source` = `p`.`source`))))
-        GROUP BY CONCAT(`p`.`product_id`, `p`.`source`)) `t`
-    WHERE
-        (`t`.`wishes` = (SELECT 
-                MAX(`t`.`wishes`)
-            FROM
-                (SELECT 
-                    COUNT(0) AS `wishes`
-                FROM
-                    (`wishlist` `w`
-                JOIN `product_view` `p` ON (((`w`.`product_id` = `p`.`product_id`)
-                    AND (`w`.`product_source` = `p`.`source`))))
-                GROUP BY CONCAT(`p`.`product_id`, `p`.`source`)) `t`
-            GROUP BY `t`.`category`));
+    WITH
+    `wished_for_products` AS (
+		SELECT `p`.`product_id`, `name`, `source`, `category`, COUNT(*) AS `wishes` FROM `wishlist` `w`
+        JOIN `product_view` `p` ON (`w`.`product_id` = `p`.`product_id` AND `w`.`product_source` = `p`.`source`)
+        GROUP BY `p`.`product_id`, `source`
+    )
+    
+    SELECT * FROM `wished_for_products` `w`
+    WHERE `wishes` = (SELECT MAX(`wishes`) FROM `wished_for_products`
+					  WHERE `category` = `w`.`category`
+                      GROUP BY `category`);
 
 DROP VIEW IF EXISTS `product_low_sales_view`;
 CREATE VIEW `product_low_sales_view` AS
-    SELECT 
-        `p`.`name` AS `name`,
-        `p`.`source` AS `product_source`,
-        `p`.`category` AS `category`,
-        `p`.`cost` AS `cost`,
-        `l`.`sales` AS `sales`
-    FROM
-        (`product_view` `p`
-        JOIN (SELECT 
-            CONCAT(`o`.`product_id`, `o`.`product_source`) AS `key`,
-                SUM(`o`.`quantity`) AS `sales`
-        FROM
-            `order_product` `o`
-        WHERE
-            `o`.`order_id` IN (SELECT 
-                    `order`.`order_id`
-                FROM
-                    `order`
-                WHERE
-                    (`order`.`order_date` > (NOW() - INTERVAL 90 DAY)))
-        GROUP BY CONCAT(`o`.`product_id`, `o`.`product_source`)
-        ORDER BY SUM(`o`.`quantity`)
-        LIMIT 20) `l` ON ((CONCAT(`p`.`product_id`, `p`.`source`) = `l`.`key`)))
-        ORDER BY `sales`;
+    WITH 
+    `recent_orders` AS (
+		SELECT `order_id` FROM `order` 
+        WHERE `order_date` > (NOW() - INTERVAL 90 DAY)
+    ),
+    
+    `product_purchases` AS (
+		SELECT `product_id`, `product_source` AS `source`, SUM(`quantity`) AS `sales` FROM `order_product`
+        WHERE `order_id` IN (SELECT * FROM `recent_orders`)
+		GROUP BY `product_id`, `product_source`
+    )
+    
+    SELECT `name`, `source` AS `product_source`, `category`, `cost`, IFNULL(`sales`, 0) AS `sales` FROM `product_view`
+	LEFT JOIN `product_purchases` USING (`product_id`, `source`)
+	GROUP BY `product_id`, `source`
+	ORDER BY `sales`;
 
 DROP VIEW IF EXISTS `product_shipment_view`;
 CREATE VIEW `product_shipment_view` AS
     SELECT 
-        (SELECT 
-                CONCAT(`c`.`first_name`, ' ', `c`.`last_name`)
-            FROM
-                `customer` `c`
-            WHERE
-                (`c`.`customer_id` = `o`.`customer_id`)) AS `customer`,
-        (SELECT 
-                `p`.`name`
-            FROM
-                `product` `p`
-            WHERE
-                (`p`.`product_id` = `op`.`product_id`)) AS `product`,
-        `o`.`shipment_date` AS `shipment_date`
-    FROM
-        (`order` `o`
-        JOIN `order_product` `op`);
+        (SELECT DISTINCT CONCAT(`first_name`, ' ', `last_name`) FROM `customer_view` `cv`
+         WHERE `cv`.`customer_id` = `o`.`customer_id` AND
+               `cv`.`source` = `o`.`customer_source`) AS `customer`,
+        (SELECT `name` FROM `product_view` `pv`
+         WHERE `pv`.`product_id` = `op`.`product_id` AND
+               `pv`.`source` = `op`.`product_source`) AS `product`,
+        `shipment_date` AS `shipment_date`
+    FROM `order` `o`
+	JOIN `order_product` `op` USING (`order_id`);
 
 DROP VIEW IF EXISTS `received_products_view`;
 CREATE VIEW `received_products_view` AS
@@ -629,13 +595,17 @@ INSERT INTO `address` (`state`, `zip`, `city`, `street`, `house`) VALUES ('NJ', 
 INSERT INTO `customer` (`first_name`, `last_name`, `email_address`) VALUES ('bob', 'dole', 'bob@gmail.com');
 INSERT INTO `customer` (`first_name`, `last_name`, `email_address`) VALUES ('jim', 'jam', 'jim@gmail.com');
 INSERT INTO `customer` (`first_name`, `last_name`, `email_address`) VALUES ('jill', 'jack', 'jill@gmail.com');
-INSERT INTO `customer` (`first_name`, `last_name`, `email_address`) VALUES ('Cool', 'Admin', 'admin@admin.com');
+INSERT INTO `customer` (`first_name`, `last_name`, `email_address`) VALUES ('Cool', 'Admin', 'a@gmail.com');
 
 INSERT INTO `customer_address` (`customer_id`, `address_id`, `name`) VALUES (1, 1, 'Home');
 INSERT INTO `customer_address` (`customer_id`, `address_id`, `name`) VALUES (1, 2, 'Second Home');
 INSERT INTO `customer_address` (`customer_id`, `address_id`, `name`) VALUES (2, 2, 'Home');
 INSERT INTO `customer_address` (`customer_id`, `address_id`, `name`) VALUES (3, 3, 'Home');
 INSERT INTO `customer_address` (`customer_id`, `address_id`, `name`) VALUES (4, 3, 'Home');
+
+INSERT INTO `user` (`customer_id`, `customer_source`, `role_id`, `password`) VALUES (4, 'kinabalu', 1, 'test');
+INSERT INTO `user` (`customer_id`, `customer_source`, `role_id`, `password`) VALUES (1, 'kinabalu', 2, 'test');
+INSERT INTO `user` (`customer_id`, `customer_source`, `role_id`, `password`, `last_login`) VALUES (3, 'kinabalu', 2, 'test', NOW() - INTERVAL 365 DAY);
 
 INSERT INTO `supplier` (`name`, `address_id`) VALUES ('CoolThings', '1');
 INSERT INTO `supplier` (`name`, `address_id`) VALUES ('BestStuff', '2');
@@ -647,21 +617,24 @@ INSERT INTO `category` (`name`) VALUES ('Cool');
 INSERT INTO `product` (`name`, `description`, `supplier_id`, `category_id`, `cost`, `reorder_level`, `weight_unit_of_measure`, `weight`, `quantity`) VALUES ('test', 'test', '1', '1', '23', '10', 'oz', '5', '11');
 INSERT INTO `product` (`name`, `description`, `supplier_id`, `category_id`, `cost`, `reorder_level`, `weight_unit_of_measure`, `weight`, `quantity`) VALUES ('Fun thing', 'Its fun!', '2', '2', '15', '10', 'oz', '5', '12');
 INSERT INTO `product` (`name`, `description`, `supplier_id`, `category_id`, `cost`, `reorder_level`, `weight_unit_of_measure`, `weight`, `quantity`) VALUES ('Really Fun Product', 'its really fun!', '1', '3', '10', '10', 'oz', '15', '11');
+INSERT INTO `product` (`name`, `description`, `supplier_id`, `category_id`, `cost`, `reorder_level`, `weight_unit_of_measure`, `weight`, `quantity`) VALUES ('Product Running Low', 'We better get more!', '2', '2', '5', '10', 'oz', '15', '5');
+INSERT INTO `product` (`name`, `description`, `supplier_id`, `category_id`, `cost`, `reorder_level`, `weight_unit_of_measure`, `weight`, `quantity`) VALUES ('Product Almost Gone', 'We better get even more!', '1', '1', '5', '10', 'oz', '15', '2');
 
-UPDATE `product` SET `quantity`='1' WHERE  `product_id`=1;
-UPDATE restock SET fulfilled='1' WHERE `product_id`=1;
-
+INSERT INTO `order` (`customer_id`, `customer_source`, `delivery_date`) VALUES ('1', 'kinabalu', NOW() + INTERVAL 15 DAY);
+INSERT INTO `order` (`customer_id`, `customer_source`, `delivery_date`) VALUES ('2', 'kinabalu', NOW() + INTERVAL 15 DAY);
 INSERT INTO `order` (`customer_id`, `customer_source`) VALUES ('1', 'kinabalu');
-INSERT INTO `order` (`customer_id`, `customer_source`) VALUES ('2', 'kinabalu');
-INSERT INTO `order` (`customer_id`, `customer_source`) VALUES ('1', 'kinabalu');
+INSERT INTO `order` (`customer_id`, `customer_source`, `delivery_date`) VALUES ('3', 'kinabalu', NOW() + INTERVAL 15 DAY);
 
 INSERT INTO `order_product` (`order_id`, `product_id`, `product_source`, `quantity`) VALUES (1, 1, 'kinabalu', 2);
 INSERT INTO `order_product` (`order_id`, `product_id`, `product_source`, `quantity`) VALUES (1, 2, 'kinabalu', 3);
-INSERT INTO `order_product` (`order_id`, `product_id`, `product_source`, `quantity`) VALUES (1, 1, 'adventureworks', 5);
+INSERT INTO `order_product` (`order_id`, `product_id`, `product_source`, `quantity`) VALUES (1, 993, 'adventureworks', 5);
 INSERT INTO `order_product` (`order_id`, `product_id`, `product_source`, `quantity`) VALUES (1, 1, 'sakila', 1);
 INSERT INTO `order_product` (`order_id`, `product_id`, `product_source`, `quantity`) VALUES (2, 1, 'kinabalu', 1);
 INSERT INTO `order_product` (`order_id`, `product_id`, `product_source`, `quantity`) VALUES (2, 3, 'kinabalu', 4);
 INSERT INTO `order_product` (`order_id`, `product_id`, `product_source`, `quantity`) VALUES (3, 1, 'kinabalu', 2);
+INSERT INTO `order_product` (`order_id`, `product_id`, `product_source`, `quantity`) VALUES (4, 707, 'adventureworks', 1);
+INSERT INTO `order_product` (`order_id`, `product_id`, `product_source`, `quantity`) VALUES (4, 708, 'adventureworks', 2);
+INSERT INTO `order_product` (`order_id`, `product_id`, `product_source`, `quantity`) VALUES (4, 1, 'kinabalu', 3);
 
 INSERT INTO `rating` (`customer_id`, `customer_source`, `product_id`, `product_source`, `rating`) VALUES (1, 'kinabalu', 1, 'kinabalu', 5);
 INSERT INTO `rating` (`customer_id`, `customer_source`, `product_id`, `product_source`, `rating`) VALUES (1, 'kinabalu', 2, 'kinabalu', 3);
@@ -672,3 +645,11 @@ INSERT INTO `rating` (`customer_id`, `customer_source`, `product_id`, `product_s
 INSERT INTO `rating` (`customer_id`, `customer_source`, `product_id`, `product_source`, `rating`) VALUES (3, 'kinabalu', 1, 'kinabalu', 4);
 INSERT INTO `rating` (`customer_id`, `customer_source`, `product_id`, `product_source`, `rating`) VALUES (3, 'kinabalu', 2, 'kinabalu', 3);
 INSERT INTO `rating` (`customer_id`, `customer_source`, `product_id`, `product_source`, `rating`) VALUES (3, 'kinabalu', 3, 'kinabalu', 4);
+
+INSERT INTO `wishlist` (`customer_id`, `customer_source`, `product_id`, `product_source`) VALUES (2, 'kinabalu', 7, 'northwind');
+INSERT INTO `wishlist` (`customer_id`, `customer_source`, `product_id`, `product_source`) VALUES (2, 'kinabalu', 1, 'northwind');
+INSERT INTO `wishlist` (`customer_id`, `customer_source`, `product_id`, `product_source`) VALUES (2, 'kinabalu', 680, 'adventureworks');
+
+INSERT INTO `wishlist` (`customer_id`, `customer_source`, `product_id`, `product_source`) VALUES (3, 'kinabalu', 3, 'northwind');
+INSERT INTO `wishlist` (`customer_id`, `customer_source`, `product_id`, `product_source`) VALUES (3, 'kinabalu', 1, 'northwind');
+INSERT INTO `wishlist` (`customer_id`, `customer_source`, `product_id`, `product_source`) VALUES (3, 'kinabalu', 2, 'kinabalu');
