@@ -1,0 +1,36 @@
+﻿@model IEnumerable<Kinabalu.Models.SuggestedProducts>
+
+@{
+    ViewData["Title"] = "Suggested Products";
+}
+
+<h2>Suggested Products</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ProductName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ProductSource)
+            </th>
+            <th>Buy</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.ProductName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ProductSource)
+            </td>
+            <td>
+                <a class="btn btn-primary" asp-controller="Products" asp-action="AddToShoppingCart" asp-route-productId="@item.ProductId" asp-route-productSource="@item.ProductSource"><span class="glyphicon glyphicon-shopping-cart"></span></a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

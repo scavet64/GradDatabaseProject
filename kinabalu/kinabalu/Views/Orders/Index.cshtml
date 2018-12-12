@@ -1,0 +1,62 @@
+﻿@model IEnumerable<Kinabalu.Models.OrderProductViewModel>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>Orders</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ProductName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ProductSource)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ProductQuantity)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Order.OrderDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Order.ShipmentDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Order.DeliveryDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Order.LastUpdate)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.ProductName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ProductSource)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ProductQuantity)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Order.OrderDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Order.ShipmentDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Order.DeliveryDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Order.LastUpdate)
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

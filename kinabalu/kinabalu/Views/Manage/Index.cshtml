@@ -1,0 +1,96 @@
+﻿@model Kinabalu.Models.ManageViewModels.IndexViewModel
+@{
+    ViewData["Title"] = "Account Profile";
+    ViewData.AddActivePage(ManageNavPages.Index);
+}
+<h4>@ViewData["Title"]</h4>
+@Html.Partial("_StatusMessage", Model.StatusMessage)
+<div class="row">
+    <div class="col-md-6">
+        <form method="post">
+            <div asp-validation-summary="All" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="Email"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="FirstName"></label>
+                <input asp-for="FirstName" class="form-control" />
+                <span asp-validation-for="FirstName" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group">
+                <label asp-for="LastName"></label>
+                <input asp-for="LastName" class="form-control" />
+            </div>
+            <button type="submit" class="btn btn-default">Save</button>
+        </form>
+    </div>
+</div>
+
+<h2>Saved Addresses</h2>
+
+<p>
+    <a asp-controller="Addresses" asp-action="Create" asp-route-returnurl="..\Manage\index">Add New</a>
+</p>
+<table class="table">
+    <thead>
+    <tr>
+        <th>
+            House
+        </th>
+        <th>
+            Street
+        </th>
+        <th>
+            City
+        </th>
+        <th>
+            State
+        </th>
+        <th>
+            Zip
+        </th>
+        <th>
+            Last Updated
+        </th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model.Addresses) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Address.House)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Address.Street)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Address.City)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Address.State)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Address.Zip)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LastUpdate)
+            </td>
+            <td>
+                <a asp-controller="Addresses" asp-action="Edit" asp-route-id="@item.AddressId">Edit</a> |
+                <a asp-controller="Addresses" asp-action="Details" asp-route-id="@item.AddressId">Details</a> |
+                <a asp-controller="Manage" asp-action="RemoveAssociation" asp-route-addressId="@item.AddressId">Delete</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}
