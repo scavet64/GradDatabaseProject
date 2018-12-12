@@ -9,7 +9,7 @@ CREATE VIEW `unpurchased_wished_for_items_view` AS
                 ((`p`.`product_id` = `w`.`product_id`)
                     AND (`p`.`source` = `w`.`product_source`))) AS `product`,
         (SELECT 
-                CONCAT(`c`.`first_name`, ' ', `c`.`last_name`)
+                DISTINCT CONCAT(`c`.`first_name`, ' ', `c`.`last_name`)
             FROM
                 `customer_view` `c`
             WHERE
