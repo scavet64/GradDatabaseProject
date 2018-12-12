@@ -22,16 +22,13 @@ namespace Kinabalu.Controllers
     [Route("[controller]/[action]")]
     public class AccountController : Controller
     {
-        private readonly IEmailSender _emailSender;
         private readonly ICookieService _cookieService;
         private readonly grad_dbContext _context;
 
         public AccountController(
             grad_dbContext context,
-            IEmailSender emailSender,
             ICookieService cookieService)
         {
-            _emailSender = emailSender;
             _context = context;
             _cookieService = cookieService;
         }
