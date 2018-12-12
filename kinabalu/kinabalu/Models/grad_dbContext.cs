@@ -38,6 +38,7 @@ namespace Kinabalu.Models
         public virtual DbSet<ProductLowSalesView> ProductLowSalesView { get; set; }
         public virtual DbSet<ProductShipmentView> ProductShipmentView { get; set; }
         public virtual DbSet<UnpurchasedWishedForItemsView> UnpurchasedWishedForItemsView { get; set; }
+        public virtual DbQuery<SuggestedProducts> SuggestedProductsProcedure { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -757,6 +758,21 @@ namespace Kinabalu.Models
 
                 entity.Property(e => e.Customer)
                     .HasColumnName("customer");
+            });
+
+            modelBuilder.Query<SuggestedProducts>(entity =>
+            {
+                entity.Property(e => e.ProductId)
+                    .HasColumnName("product_id");
+
+                entity.Property(e => e.ProductSource)
+                    .HasColumnName("source");
+
+                entity.Property(e => e.ProductName)
+                    .HasColumnName("name");
+
+                entity.Property(e => e.TotalPurchases)
+                    .HasColumnName("total_purchases");
             });
         }
     }

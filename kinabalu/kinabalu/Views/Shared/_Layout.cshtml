@@ -42,6 +42,8 @@
                             {
                                 <li><a asp-area="" asp-controller="Products" asp-action="Index" asp-route-category="@category">@category</a></li>
                             }
+                            <li role="separator" class="divider"></li>
+                            <li><a asp-area="" asp-controller="Products" asp-action="SuggestedProduct">Suggested Products</a></li>
                         </ul>
                     </li>
                     @if (AuthenticationService.isUserAdmin(HttpContextAccessor.HttpContext.Request))

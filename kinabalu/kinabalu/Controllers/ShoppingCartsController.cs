@@ -25,9 +25,16 @@ namespace Kinabalu.Controllers
         // GET: ShoppingCarts
         public async Task<IActionResult> Index()
         {
+            var customerUser = _authenticationService.GetCurrentlyLoggedInUser(Request);
+            if (customerUser == null)
+            {
+                return RedirectToAction(nameof(AccountController.Login), "Account");
+            }
+
             var temp = (from s in _context.ShoppingCart
-                       join pv in _context.ProductsView on new {A = s.ProductId, B = s.ProductSource} equals new {A = pv.ProductId, B = pv.Source }
-                       select new ShoppingCartProductViewModel{ ShoppingCart = s, ProductName = pv.Name});
+                        join pv in _context.ProductsView on new {A = s.ProductId, B = s.ProductSource} equals new {A = pv.ProductId, B = pv.Source }
+                        where s.CustomerId == customerUser.User.CustomerId && s.CustomerSource == customerUser.User.CustomerSource
+                        select new ShoppingCartProductViewModel{ ShoppingCart = s, ProductName = pv.Name});
 
             return View(temp.ToList());
         }

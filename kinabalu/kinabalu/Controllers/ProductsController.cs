@@ -25,6 +25,22 @@ namespace Kinabalu.Controllers
             _authenticationService = authenticationService;
         }
 
+        public IActionResult SuggestedProduct()
+        {
+            var customerUser = _authenticationService.GetCurrentlyLoggedInUser(Request);
+            if (customerUser == null)
+            {
+                return RedirectToAction(nameof(AccountController.Login), "Account");
+            }
+
+            var result = _context.SuggestedProductsProcedure.FromSql(
+                new RawSqlString("call recommended_items(@id, @source)"),
+                new MySqlParameter("@id", customerUser.User.CustomerId),
+                new MySqlParameter("@source", customerUser.User.CustomerSource));
+
+            return View(result.ToList());
+        }
+
         public async Task<IActionResult> AddToWishlist(int? productId, string productSource)
         {
             if (productId == null || productSource == null)

@@ -8,6 +8,6 @@ namespace Kinabalu.Models
     public class UserCustomerViewModel
     {
         public User User { get; set; }
-        public Customer Customer { get; set; }
+        public CustomerView Customer { get; set; }
     }
 }
