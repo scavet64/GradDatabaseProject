@@ -24,8 +24,15 @@ namespace Kinabalu.Controllers
         // GET: Wishlists
         public async Task<IActionResult> Index()
         {
+            var customerUser = _authenticationService.GetCurrentlyLoggedInUser(Request);
+            if (customerUser == null)
+            {
+                return RedirectToAction(nameof(AccountController.Login), "Account");
+            }
+
             var temp = (from w in _context.Wishlist
                 join pv in _context.ProductsView on new { A = w.ProductId, B = w.ProductSource } equals new { A = pv.ProductId, B = pv.Source }
+                where w.CustomerId == customerUser.User.CustomerId && w.CustomerSource == customerUser.User.CustomerSource
                 select new WishlistProductViewModel { Wishlist = w, ProductName = pv.Name });
 
             return View(await temp.ToListAsync());
