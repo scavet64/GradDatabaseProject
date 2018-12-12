@@ -109,7 +109,7 @@ namespace Kinabalu.Controllers
         }
 
         // GET: Products
-        public async Task<IActionResult> Index(string sortOrder, string currentFilter, string searchString, int? page, string category = null)
+        public async Task<IActionResult> Index(string sortOrder, string currentFilter, string searchString, int? page = 1, string category = null)
         {
             ViewBag.CurrentSort = sortOrder;
             ViewBag.CurrentCategory = category;
@@ -147,7 +147,9 @@ namespace Kinabalu.Controllers
 
             if (!String.IsNullOrEmpty(searchString))
             {
-                temp = temp.Where(s => s.Name.Contains(searchString) || s.Description.Contains(searchString));
+                temp = temp.Where(s => s.Name.Contains(searchString) || 
+                                       s.Description.Contains(searchString) ||
+                                       s.Source.Contains(searchString));
             }
 
             switch (sortOrder)
