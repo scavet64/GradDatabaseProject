@@ -1,7 +1,4 @@
-﻿using IdentityDemo.Models;
-using IdentityDemo.Models.AccountViewModels;
-using IdentityDemo.Services;
-using Kinabalu;
+﻿using Kinabalu;
 using Kinabalu.Controllers;
 using Kinabalu.Models;
 using Kinabalu.Services;
@@ -18,22 +15,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Kinabalu.Models.AccountViewModels;
 
-namespace IdentityDemo.Controllers
+namespace Kinabalu.Controllers
 {
     [Route("[controller]/[action]")]
     public class AccountController : Controller
     {
-        private readonly IEmailSender _emailSender;
         private readonly ICookieService _cookieService;
         private readonly grad_dbContext _context;
 
         public AccountController(
             grad_dbContext context,
-            IEmailSender emailSender,
             ICookieService cookieService)
         {
-            _emailSender = emailSender;
             _context = context;
             _cookieService = cookieService;
         }
@@ -83,7 +78,7 @@ namespace IdentityDemo.Controllers
                               where (e.EmailAddress.Equals(model.Email) && ep.Password.Equals(model.Password))
                               select new
                               {
-                                  Id = ep.CustomerId,
+                                  Id = ep.UserId,
                                   email = e.EmailAddress,
                                   password = ep.Password
                               }).ToList().FirstOrDefault();

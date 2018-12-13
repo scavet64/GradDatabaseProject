@@ -1,0 +1,40 @@
+﻿@model IEnumerable<Kinabalu.Models.WishlistProductViewModel>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>Index</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ProductName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Wishlist.ProductSource)
+            </th>
+            <th>Buy</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.ProductName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Wishlist.ProductSource)
+            </td>
+            <td>
+                <a class="btn btn-primary" asp-controller="Products" asp-action="AddToShoppingCart" asp-route-productId="@item.Wishlist.ProductId" asp-route-productSource="@item.Wishlist.ProductSource"><span class="glyphicon glyphicon-shopping-cart"></span></a>
+            </td>
+            <td>
+                <a asp-action="Delete" asp-route-id="@item.Wishlist.ProductId" asp-route-source="@item.Wishlist.ProductSource">Remove</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

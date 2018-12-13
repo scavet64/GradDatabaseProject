@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using IdentityDemo.Services;
-using Kinabalu.DAL;
 using Kinabalu.Models;
 using Kinabalu.Services;
 using Microsoft.AspNetCore.Builder;
@@ -41,7 +39,6 @@ namespace Kinabalu
             services.AddDbContext<grad_dbContext>(options =>
                 options.UseMySql(Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddTransient<IEmailSender, EmailSender>();
             services.AddTransient<ICookieService, CookieService>();
             services.AddTransient<IAuthenticationService, AuthenticationService>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();

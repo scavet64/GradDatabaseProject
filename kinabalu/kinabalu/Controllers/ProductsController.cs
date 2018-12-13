@@ -6,23 +6,205 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Kinabalu.Models;
+using Kinabalu.Services;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using MySql.Data.MySqlClient;
+using X.PagedList;
 
 namespace Kinabalu.Controllers
 {
     public class ProductsController : Controller
     {
         private readonly grad_dbContext _context;
+        private readonly IAuthenticationService _authenticationService;
 
-        public ProductsController(grad_dbContext context)
+        public ProductsController(grad_dbContext context, IAuthenticationService authenticationService)
         {
             _context = context;
+            _authenticationService = authenticationService;
+        }
+
+        public IActionResult SuggestedProduct()
+        {
+            var customerUser = _authenticationService.GetCurrentlyLoggedInUser(Request);
+            if (customerUser == null)
+            {
+                return RedirectToAction(nameof(AccountController.Login), "Account");
+            }
+
+            var result = _context.SuggestedProductsProcedure.FromSql(
+                new RawSqlString("call recommended_items(@id, @source)"),
+                new MySqlParameter("@id", customerUser.User.CustomerId),
+                new MySqlParameter("@source", customerUser.User.CustomerSource));
+
+            return View(result.ToList());
+        }
+
+        public async Task<IActionResult> AddToWishlist(int? productId, string productSource)
+        {
+            if (productId == null || productSource == null)
+            {
+                return NotFound();
+            }
+
+            var customerUser = _authenticationService.GetCurrentlyLoggedInUser(Request);
+
+            var wishlist = new Wishlist
+            {
+                CustomerId = customerUser.User.CustomerId,
+                CustomerSource = customerUser.User.CustomerSource,
+                ProductId = productId.Value,
+                ProductSource = productSource,
+            };
+
+            _context.Add(wishlist);
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException e)
+            {
+                Console.WriteLine(e);
+            }
+
+            return RedirectToAction("Index", "Wishlists");
+        }
+
+        public async Task<IActionResult> AddToShoppingCart(int? productId, string productSource)
+        {
+            if (productId == null || productSource == null)
+            {
+                return NotFound();
+            }
+
+            var customerUser = _authenticationService.GetCurrentlyLoggedInUser(Request);
+
+            var shoppingCartEntry = (from sc in _context.ShoppingCart
+                where (sc.CustomerId.Equals(customerUser.User.CustomerId) && sc.CustomerSource.Equals(customerUser.User.CustomerSource) && 
+                       sc.ProductId.Equals(productId) && sc.ProductSource.Equals(productSource))
+                select sc).ToList().FirstOrDefault();
+
+            if (shoppingCartEntry != null)
+            {
+                shoppingCartEntry.ProductQuantity++;
+            }
+            else
+            {
+                var shoppingCart = new ShoppingCart
+                {
+                    CustomerId = customerUser.User.CustomerId,
+                    CustomerSource = customerUser.User.CustomerSource,
+                    ProductId = productId.Value,
+                    ProductSource = productSource,
+                    ProductQuantity = 1
+                };
+
+                _context.Add(shoppingCart);
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Index", "ShoppingCarts"); ;
         }
 
         // GET: Products
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string sortOrder, string currentFilter, string searchString, int? page = 1, string category = null)
         {
-            var temp = _context.ProductsView;
-            return View(temp.ToList());
+            ViewBag.CurrentSort = sortOrder;
+            ViewBag.CurrentCategory = category;
+
+            ViewBag.NameSortParm = sortOrder == "Name" ? "name_desc" : "Name";
+            ViewBag.CategorySortParm = sortOrder == "Category" ? "Category_desc" : "Category";
+            ViewBag.CostSortParm = sortOrder == "Cost" ? "cost_desc" : "Cost";
+            ViewBag.QuantitySortParm = sortOrder == "Quantity" ? "Quantity_desc" : "Quantity";
+            ViewBag.SourceSortParm = sortOrder == "Source" ? "Source_desc" : "Source";
+            ViewBag.AverageRatingSortParm = sortOrder == "Average Rating" ? "Average_Rating_desc" : "Average Rating";
+            ViewBag.AverageRecievedRatingSortParm = sortOrder == "Average Received Rating" ? "Average_Received_Rating_desc" : "Average Received Rating";
+
+            if (searchString != null)
+            {
+                page = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+
+            ViewBag.CurrentFilter = searchString;
+
+            IQueryable<ProductsView> temp;
+            if (category == null)
+            {
+                temp = _context.ProductsView;
+            }
+            else
+            {
+                temp = from p in _context.ProductsView
+                    where p.Category.Equals(category)
+                    select p;
+            }
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                temp = temp.Where(s => s.Name.Contains(searchString) || 
+                                       s.Description.Contains(searchString) ||
+                                       s.Source.Contains(searchString));
+            }
+
+            switch (sortOrder)
+            {
+                case "name_desc":
+                    temp = temp.OrderByDescending(s => s.Name);
+                    break;
+                case "name":
+                    temp = temp.OrderBy(s => s.Name);
+                    break;
+                case "Category_desc":
+                    temp = temp.OrderByDescending(s => s.Category);
+                    break;
+                case "Category":
+                    temp = temp.OrderBy(s => s.Category);
+                    break;
+                case "cost_desc":
+                    temp = temp.OrderByDescending(s => s.Cost);
+                    break;
+                case "Cost":
+                    temp = temp.OrderBy(s => s.Cost);
+                    break;
+                case "Quantity_desc":
+                    temp = temp.OrderByDescending(s => s.Quantity);
+                    break;
+                case "Quantity":
+                    temp = temp.OrderBy(s => s.Quantity);
+                    break;
+                case "Source_desc":
+                    temp = temp.OrderByDescending(s => s.Source);
+                    break;
+                case "Source":
+                    temp = temp.OrderBy(s => s.Source);
+                    break;
+                case "Average_Received_Rating_desc":
+                    temp = temp.OrderByDescending(s => s.AverageReceivedRating);
+                    break;
+                case "Average Rating":
+                    temp = temp.OrderBy(s => s.AverageReceivedRating);
+                    break;
+                case "Average_Rating_desc":
+                    temp = temp.OrderByDescending(s => s.AverageRating);
+                    break;
+                case "Average Received Rating":
+                    temp = temp.OrderBy(s => s.AverageRating);
+                    break;
+                default:
+                    temp = temp.OrderBy(s => s.Name);
+                    break;
+            }
+
+            int pageSize = 20;
+            int pageNumber = (page ?? 1);
+
+            return View(temp.ToPagedList(pageNumber, pageSize));
         }
 
         // GET: Products
@@ -50,14 +232,6 @@ namespace Kinabalu.Controllers
             }
 
             return View(product);
-        }
-
-        // GET: Products/NotSelling/
-        public IActionResult NotSelling()
-        {
-            var tempp = _context.BelowMinimumStockView.ToList();
-            //TODO: Make this a real aspnet view
-            return new OkObjectResult(tempp);
         }
 
         // GET: Products/Create

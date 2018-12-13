@@ -1,50 +1,81 @@
-﻿@model IEnumerable<Kinabalu.Models.ProductsView>
+﻿@using Kinabalu.Services
+@inject IAuthenticationService AuthenticationService;
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor;
+@model X.PagedList.IPagedList<Kinabalu.Models.ProductsView>
+@using X.PagedList.Mvc;
+@using X.PagedList.Mvc.Core
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
 
 @{
     ViewData["Title"] = "View";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>View</h2>
+<h2>Products</h2>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<p>
-    <a asp-action="Local">Manage Kinabalu Products</a>
-</p>
+@if (AuthenticationService.isUserAdmin(HttpContextAccessor.HttpContext.Request))
+{
+    <p>
+        <a asp-action="Create">Create New</a>
+    </p>
+    <p>
+        <a asp-action="Local">Manage Kinabalu Products</a>
+    </p>
+}
+
+@using (Html.BeginForm())
+{
+    <p>
+        Find by name or category: @Html.TextBox("SearchString")
+        <input type="submit" value="Search" />
+    </p>
+}
+
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Name)
+                @Html.ActionLink("Name", "Index", new { sortOrder = ViewBag.NameSortParm, currentFilter = ViewBag.CurrentFilter, category = ViewBag.CurrentCategory })
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Description)
+                @Html.DisplayNameFor(model => model.First().Description)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Category)
+                @Html.ActionLink("Category", "Index", new { sortOrder = ViewBag.CategorySortParm, currentFilter = ViewBag.CurrentFilter, category = ViewBag.CurrentCategory })
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Cost)
+                @Html.ActionLink("Cost", "Index", new { sortOrder = ViewBag.CostSortParm, currentFilter = ViewBag.CurrentFilter, category = ViewBag.CurrentCategory })
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Quantity)
+                @Html.ActionLink("Quantity", "Index", new { sortOrder = ViewBag.QuantitySortParm, currentFilter = ViewBag.CurrentFilter, category = ViewBag.CurrentCategory })
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Source)
+                @Html.ActionLink("Source", "Index", new { sortOrder = ViewBag.SourceSortParm, currentFilter = ViewBag.CurrentFilter, category = ViewBag.CurrentCategory })
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.AverageRating)
+                @Html.ActionLink("Average Rating", "Index", new { sortOrder = ViewBag.AverageRatingSortParm, currentFilter = ViewBag.CurrentFilter, category = ViewBag.CurrentCategory })
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.AverageReceivedRating)
+                @Html.ActionLink("Average Received Rating", "Index", new { sortOrder = ViewBag.AverageRecievedRatingSortParm, currentFilter = ViewBag.CurrentFilter, category = ViewBag.CurrentCategory })
             </th>
-            <th></th>
+            <th>
+                Buy
+            </th>
+            <th>
+                Wishlist
+            </th>
+            <th>
+                Rate Product
+            </th>
+            @if (AuthenticationService.isUserAdmin(HttpContextAccessor.HttpContext.Request))
+            {
+                <th></th>
+            }
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+        @foreach (var item in Model)
+        {
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.Name)
@@ -71,11 +102,49 @@
                 @Html.DisplayFor(modelItem => item.AverageReceivedRating)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.ProductId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ProductId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ProductId">Delete</a>
+                <a class="btn btn-primary" asp-action="AddToShoppingCart" asp-route-productId="@item.ProductId" asp-route-productSource="@item.Source"><span class="glyphicon glyphicon-shopping-cart"></span></a>
             </td>
+            <td>
+                <a class="btn btn-primary" asp-action="AddToWishlist" asp-route-productId="@item.ProductId" asp-route-productSource="@item.Source"><span class="glyphicon glyphicon glyphicon-star"></span></a>
+            </td>
+            <td>
+                <div class="dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        Rating
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                        <li><a asp-controller="Ratings" asp-action="Rate" asp-route-prodId="@item.ProductId" asp-route-source="@item.Source" asp-route-rating="1">1</a></li>
+                        <li><a asp-controller="Ratings" asp-action="Rate" asp-route-prodId="@item.ProductId" asp-route-source="@item.Source" asp-route-rating="2">2</a></li>
+                        <li><a asp-controller="Ratings" asp-action="Rate" asp-route-prodId="@item.ProductId" asp-route-source="@item.Source" asp-route-rating="3">3</a></li>
+                        <li><a asp-controller="Ratings" asp-action="Rate" asp-route-prodId="@item.ProductId" asp-route-source="@item.Source" asp-route-rating="4">4</a></li>
+                        <li><a asp-controller="Ratings" asp-action="Rate" asp-route-prodId="@item.ProductId" asp-route-source="@item.Source" asp-route-rating="5">5</a></li>
+                    </ul>
+                </div>
+            </td>
+            @if (AuthenticationService.isUserAdmin(HttpContextAccessor.HttpContext.Request))
+            {
+                if (item.Source.Equals(KinabaluConstants.KinabaluSource, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    <td>
+
+                        <a asp-action="Edit" asp-route-id="@item.ProductId">Edit</a> |
+                        <a asp-action="Details" asp-route-id="@item.ProductId">Details</a> |
+                        <a asp-action="Delete" asp-route-id="@item.ProductId">Delete</a>
+                    </td>
+                }
+                else
+                {
+                    <td></td>
+                }
+            }
         </tr>
-}
+        }
     </tbody>
 </table>
+<br />
+Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+
+@Html.PagedListPager(Model, page => Url.Action("Index",
+    new { page, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter, category = ViewBag.CurrentCategory }))
+

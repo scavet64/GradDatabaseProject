@@ -1,0 +1,37 @@
+﻿@model IEnumerable<Kinabalu.Models.Views.UnpurchasedWishedForItemsView>
+
+@{
+    ViewData["Title"] = "UnpurchasedWishedForItems";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Unpurchased Wished For Items</h2>
+
+<p>
+    <a asp-action="Index">Go Back</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Customer)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Product)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Customer)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Product)
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

@@ -6,73 +6,95 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Kinabalu.Models;
+using Kinabalu.Services;
 
 namespace Kinabalu.Controllers
 {
     public class ShoppingCartsController : Controller
     {
         private readonly grad_dbContext _context;
+        private readonly IAuthenticationService _authenticationService;
 
-        public ShoppingCartsController(grad_dbContext context)
+
+        public ShoppingCartsController(grad_dbContext context, IAuthenticationService authenticationService)
         {
             _context = context;
+            _authenticationService = authenticationService;
         }
 
         // GET: ShoppingCarts
         public async Task<IActionResult> Index()
         {
-            return View(await _context.ShoppingCart.ToListAsync());
-        }
-
-        // GET: ShoppingCarts/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
+            var customerUser = _authenticationService.GetCurrentlyLoggedInUser(Request);
+            if (customerUser == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(AccountController.Login), "Account");
             }
 
-            var shoppingCart = await _context.ShoppingCart
-                .FirstOrDefaultAsync(m => m.CustomerId == id);
-            if (shoppingCart == null)
-            {
-                return NotFound();
-            }
+            var temp = (from s in _context.ShoppingCart
+                        join pv in _context.ProductsView on new {A = s.ProductId, B = s.ProductSource} equals new {A = pv.ProductId, B = pv.Source }
+                        where s.CustomerId == customerUser.User.CustomerId && s.CustomerSource == customerUser.User.CustomerSource
+                        select new ShoppingCartProductViewModel{ ShoppingCart = s, ProductName = pv.Name});
 
-            return View(shoppingCart);
+            return View(temp.ToList());
         }
 
-        // GET: ShoppingCarts/Create
-        public IActionResult Create()
+        public async Task<IActionResult> PlaceOrder()
         {
-            return View();
-        }
-
-        // POST: ShoppingCarts/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CustomerId,CustomerSource,ProductId,ProductSource,ProductQuantity,LastUpdate")] ShoppingCart shoppingCart)
-        {
-            if (ModelState.IsValid)
+            var customerUser = _authenticationService.GetCurrentlyLoggedInUser(Request);
+            if (customerUser == null)
             {
-                _context.Add(shoppingCart);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(AccountController.Login), "Account");
             }
-            return View(shoppingCart);
+
+            var shoppingCart = (from s in _context.ShoppingCart
+                where s.CustomerId == customerUser.User.CustomerId && s.CustomerSource == customerUser.User.CustomerSource
+                select s).ToList();
+
+            var order = new Order
+            {
+                CustomerId = customerUser.User.CustomerId,
+                CustomerSource = customerUser.User.CustomerSource
+            };
+
+            _context.Order.Add(order);
+
+            foreach (var item in shoppingCart)
+            {
+                var orderProduct = new OrderProduct
+                {
+                    OrderId = order.OrderId,
+                    ProductSource = item.ProductSource,
+                    ProductId = item.ProductId,
+                    Quantity = item.ProductQuantity
+                };
+
+                _context.OrderProduct.Add(orderProduct);
+            }
+
+            _context.ShoppingCart.RemoveRange(shoppingCart.ToArray());
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index");
         }
 
         // GET: ShoppingCarts/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int? prodId, string prodSource)
         {
-            if (id == null)
+            var customerUser = _authenticationService.GetCurrentlyLoggedInUser(Request);
+            if (customerUser == null)
+            {
+                return RedirectToAction(nameof(AccountController.Login), "Account");
+            }
+
+            if (prodId == null || string.IsNullOrWhiteSpace(prodSource))
             {
                 return NotFound();
             }
 
-            var shoppingCart = await _context.ShoppingCart.FindAsync(id);
+            var shoppingCart = await _context.ShoppingCart.FindAsync(customerUser.User.CustomerId,
+                customerUser.User.CustomerSource, prodId, prodSource);
             if (shoppingCart == null)
             {
                 return NotFound();
@@ -116,29 +138,25 @@ namespace Kinabalu.Controllers
         }
 
         // GET: ShoppingCarts/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int? id, string source)
         {
-            if (id == null)
+            if (id == null || source == null)
             {
                 return NotFound();
             }
 
+            var customerUser = _authenticationService.GetCurrentlyLoggedInUser(Request);
+
             var shoppingCart = await _context.ShoppingCart
-                .FirstOrDefaultAsync(m => m.CustomerId == id);
+                .FirstOrDefaultAsync(s => s.ProductId == id &&
+                                          s.ProductSource.Equals(source) &&
+                                          s.CustomerId == customerUser.User.CustomerId &&
+                                          s.CustomerSource.Equals(customerUser.User.CustomerSource));
             if (shoppingCart == null)
             {
                 return NotFound();
             }
 
-            return View(shoppingCart);
-        }
-
-        // POST: ShoppingCarts/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var shoppingCart = await _context.ShoppingCart.FindAsync(id);
             _context.ShoppingCart.Remove(shoppingCart);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));

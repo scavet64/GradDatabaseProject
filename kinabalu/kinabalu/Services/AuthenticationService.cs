@@ -34,23 +34,17 @@ namespace Kinabalu.Services
             return false;
         }
 
-        public string GetCurrentlyLoggedInUser(HttpRequest request)
+        public UserCustomerViewModel GetCurrentlyLoggedInUser(HttpRequest request)
         {
             if (int.TryParse(getCookieValue(request), out int result))
             {
-                var user = (from u in _context.User
-                    join r in _context.Customer
-                        on u.CustomerId equals r.CustomerId
-                    where (u.UserId == result)
-                    select new
-                    {
-                        Email = r.EmailAddress,
-                    }).ToList().FirstOrDefault();
+                var customerUser = (from u in _context.User
+                    join cv in _context.CustomerView
+                        on new { A = u.CustomerId, B = u.CustomerSource } equals new { A = cv.CustomerId, B = cv.Source }
+                    where u.UserId == result
+                    select new UserCustomerViewModel { Customer = cv, User = u }).ToList().FirstOrDefault();
 
-                if (user != null)
-                {
-                    return user.Email;
-                }
+                return customerUser;
             }
 
             return null;
@@ -63,7 +57,7 @@ namespace Kinabalu.Services
                 var entryPoint = (from u in _context.User
                     join r in _context.Role
                         on u.RoleId equals r.RoleId
-                    where (u.CustomerId == result && r.RoleId == KinabaluConstants.AdminRole)
+                    where u.UserId == result && r.RoleId == KinabaluConstants.AdminRole
                     select new
                     {
                         u.UserId
