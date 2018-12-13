@@ -109,10 +109,11 @@ namespace Kinabalu.Controllers
         }
 
         // GET: Products
-        public async Task<IActionResult> Index(string sortOrder, string currentFilter, string searchString, int? page = 1, string category = null)
+        public async Task<IActionResult> Index(string sortOrder, string currentFilter, int? page = 1, string category = null)
         {
             ViewBag.CurrentSort = sortOrder;
             ViewBag.CurrentCategory = category;
+            ViewBag.CurrentFilter = currentFilter;
 
             ViewBag.NameSortParm = sortOrder == "Name" ? "name_desc" : "Name";
             ViewBag.CategorySortParm = sortOrder == "Category" ? "Category_desc" : "Category";
@@ -122,17 +123,6 @@ namespace Kinabalu.Controllers
             ViewBag.AverageRatingSortParm = sortOrder == "Average Rating" ? "Average_Rating_desc" : "Average Rating";
             ViewBag.AverageRecievedRatingSortParm = sortOrder == "Average Received Rating" ? "Average_Received_Rating_desc" : "Average Received Rating";
 
-            if (searchString != null)
-            {
-                page = 1;
-            }
-            else
-            {
-                searchString = currentFilter;
-            }
-
-            ViewBag.CurrentFilter = searchString;
-
             IQueryable<ProductsView> temp;
             if (category == null)
             {
@@ -141,17 +131,27 @@ namespace Kinabalu.Controllers
             else
             {
                 temp = from p in _context.ProductsView
-                    where p.Category.Equals(category)
-                    select p;
+                       where p.Category.Equals(category)
+                       select p;
             }
 
-            if (!String.IsNullOrEmpty(searchString))
+            if (!String.IsNullOrEmpty(currentFilter))
             {
-                temp = temp.Where(s => s.Name.Contains(searchString) || 
-                                       s.Description.Contains(searchString) ||
-                                       s.Source.Contains(searchString));
+                temp = temp.Where(s => s.Name.Contains(currentFilter) ||
+                                       s.Description.Contains(currentFilter) ||
+                                       s.Source.Contains(currentFilter));
             }
 
+            temp = ProcessSorting(sortOrder, temp);
+
+            int pageSize = 20;
+            int pageNumber = (page ?? 1);
+
+            return View(temp.ToPagedList(pageNumber, pageSize));
+        }
+
+        private static IQueryable<ProductsView> ProcessSorting(string sortOrder, IQueryable<ProductsView> temp)
+        {
             switch (sortOrder)
             {
                 case "name_desc":
@@ -201,10 +201,7 @@ namespace Kinabalu.Controllers
                     break;
             }
 
-            int pageSize = 20;
-            int pageNumber = (page ?? 1);
-
-            return View(temp.ToPagedList(pageNumber, pageSize));
+            return temp;
         }
 
         // GET: Products
