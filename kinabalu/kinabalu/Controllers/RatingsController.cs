@@ -34,7 +34,7 @@ namespace Kinabalu.Controllers
             try
             {
                 //Check to see if this product id exists in the view first
-                var prod = _context.ProductsView.FirstOrDefault(p => p.ProductId == prodId);
+                var prod = _context.ProductsView.FirstOrDefault(p => p.ProductId == prodId && p.Source == source);
                 if (prod == null)
                 {
                     return NotFound();
@@ -42,7 +42,7 @@ namespace Kinabalu.Controllers
 
                 //did this user already rate this product?
                 Rating ratingObject = _context.Rating.FirstOrDefault(r =>
-                    r.CustomerId == loggedInUser.Customer.CustomerId && r.ProductId == prodId);
+                    r.CustomerId == loggedInUser.Customer.CustomerId && r.ProductId == prodId && r.ProductSource == source);
                 if (ratingObject == null)
                 {
                     //Make a new rating then add it to the context
