@@ -39,6 +39,8 @@ namespace Kinabalu.Models
         public virtual DbSet<ProductShipmentView> ProductShipmentView { get; set; }
         public virtual DbSet<UnpurchasedWishedForItemsView> UnpurchasedWishedForItemsView { get; set; }
         public virtual DbQuery<SuggestedProducts> SuggestedProductsProcedure { get; set; }
+        public virtual DbQuery<OutlierRatings> OutliersRatingsProcedure { get; set; }
+
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -773,6 +775,24 @@ namespace Kinabalu.Models
 
                 entity.Property(e => e.TotalPurchases)
                     .HasColumnName("total_purchases");
+            });
+
+            modelBuilder.Query<OutlierRatings>(entity =>
+            {
+                entity.Property(e => e.CustomerId)
+                    .HasColumnName("customer_id");
+
+                entity.Property(e => e.CustomerSource)
+                    .HasColumnName("customer_source");
+
+                entity.Property(e => e.CustomerName)
+                    .HasColumnName("name");
+
+                entity.Property(e => e.Rating)
+                    .HasColumnName("rating");
+
+                entity.Property(e => e.Outlier)
+                    .HasColumnName("outlier");
             });
         }
     }
